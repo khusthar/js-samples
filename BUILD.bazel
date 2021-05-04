@@ -100,6 +100,19 @@ eslint(
     ],
 )
 
+
+remap_files = [
+    ["samples/{}/github.html", "samples/{}/index.html"],
+    ["samples/{}/.env", "samples/{}/app/.env"],
+    ["samples/{}/_package.css", "samples/{}/app/src/style.css"],
+    ["samples/{}/_package.html", "samples/{}/app/src/index.html"],
+    ["samples/{}/_package.ts", "samples/{}/app/src/index.ts"],
+]
+
+remap_paths = {
+    k.format(name): v.format(name) for k, v in remap_files for name in SAMPLES
+}
+
 pkg_tar(
     name = "public",
     srcs = [
@@ -107,7 +120,5 @@ pkg_tar(
         "//samples:outputs",
     ],
     strip_prefix = ".",
-    remap_paths = {
-            "samples/{}/github.html".format(name): "samples/{}/index.html".format(name) for name in SAMPLES
-        },
+    remap_paths = remap_paths,
 )

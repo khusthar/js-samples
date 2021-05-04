@@ -22,7 +22,7 @@
   "files": [],
   "license": "Apache-2.0",
   "scripts": {
-    "build": "bazel build :public.tar && tar xf bazel-bin/public.tar -C dist/",
+    "build": "rm -rf dist/samples/ && bazel build :public.tar && tar xf bazel-bin/public.tar -C dist/",
     "clean": "bazel clean",
     "ci": "npm run build && npm run test",
     "lint": "bazel test eslint",

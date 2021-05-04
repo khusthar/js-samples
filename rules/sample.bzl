@@ -364,6 +364,14 @@ def sample(name, YOUR_API_KEY="GOOGLE_MAPS_JS_SAMPLES_KEY"):
     )
 
     native.filegroup(
+        name = "package",
+        srcs = [
+           ":.env", ":_package.css", ":_package.html", ":_package.ts", "//shared:package"
+        ],
+        visibility = ["//visibility:public"],
+    )
+
+    native.filegroup(
         name = "js",
         srcs = [
             ":index.js",
@@ -398,6 +406,7 @@ def sample(name, YOUR_API_KEY="GOOGLE_MAPS_JS_SAMPLES_KEY"):
             ":css",
             ":html",
             ":js",
+            ":package",
             "{}-package.tgz".format(name),
             ":CLOUD_SHELL_INSTRUCTIONS.md",
         ],
