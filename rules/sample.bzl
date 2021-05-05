@@ -10,12 +10,13 @@ load("@rules_pkg//:pkg.bzl", "pkg_tar")
 load("@npm//@babel/cli:index.bzl", "babel")
 
 
-def sample(name, YOUR_API_KEY="GOOGLE_MAPS_JS_SAMPLES_KEY"):
+def sample(name, YOUR_API_KEY="GOOGLE_MAPS_JS_SAMPLES_KEY", dependencies = []):
     """ Generates sample outputs
 
     Args:
       name: sample directory name
       YOUR_API_KEY: environment variable name for api key
+      dependencies: third party dependencies
     """
     ts_library(
         name = "_compile",
@@ -24,7 +25,7 @@ def sample(name, YOUR_API_KEY="GOOGLE_MAPS_JS_SAMPLES_KEY"):
         deps = [
             "@npm//@types/google.maps",
             "@npm//@types/google.visualization",
-        ],
+        ] + ["@npm//{}".format(package) for package in dependencies],
         tags = ["ts"],
     )
 
