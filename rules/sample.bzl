@@ -450,7 +450,7 @@ def sample(name, YOUR_API_KEY = "GOOGLE_MAPS_JS_SAMPLES_KEY", dependencies = [],
     tags_test(name = "test_tags_html", file = ":sample.html")
 
     js_test(name = "test_index_js", file = ":index.js")
-    js_test(name = "test_package_ts", file = ":_package.ts")
+    js_test(name = "test_app_ts", file = ":app_ts")
 
     native.genrule(
         name = "package_test",
