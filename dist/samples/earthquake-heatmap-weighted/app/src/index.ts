@@ -54,4 +54,4 @@ const eqfeed_callback = function (results: any) {
     map: map,
   });
 };
-export { initMap };
+export { initMap, eqfeed_callback };

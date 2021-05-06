@@ -38,4 +38,4 @@ function initMap(): void {
 function eqfeed_callback(data: any) {
   map.data.addGeoJson(data);
 }
-export { initMap };
+export { initMap, eqfeed_callback };

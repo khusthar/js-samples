@@ -101,4 +101,4 @@ const mapStyle: google.maps.MapTypeStyle[] = [
     stylers: [{ visibility: "on" }, { hue: "#5f94ff" }, { lightness: 60 }],
   },
 ];
-export { initMap };
+export { initMap, eqfeed_callback };

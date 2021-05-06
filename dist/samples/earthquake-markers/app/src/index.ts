@@ -45,4 +45,4 @@ const eqfeed_callback = function (results: any) {
     });
   }
 };
-export { initMap };
+export { initMap, eqfeed_callback };

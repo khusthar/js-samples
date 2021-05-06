@@ -55,4 +55,4 @@ function getCircle(magnitude: number) {
 function eqfeed_callback(results: any) {
   map.data.addGeoJson(results);
 }
-export { initMap };
+export { initMap, eqfeed_callback };

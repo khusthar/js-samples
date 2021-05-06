@@ -44,9 +44,9 @@
           (o = new google.maps.Map(document.getElementById("map"), {
             center: { lat: 20, lng: -160 },
             zoom: 2,
-            styles: a,
+            styles: n,
           })),
-            o.data.setStyle(l);
+            o.data.setStyle(a);
           const e = document.createElement("script");
           e.setAttribute(
             "src",
@@ -55,6 +55,9 @@
             document.getElementsByTagName("head")[0].appendChild(e);
         }
         function l(e) {
+          o.data.addGeoJson(e);
+        }
+        function a(e) {
           const t = (function (e, t, o) {
             const r = [];
             for (let l = 0; l < 3; l++) r.push((t[l] - e[l]) * o + e[l]);
@@ -76,8 +79,8 @@
             zIndex: Math.floor(e.getProperty("mag")),
           };
         }
-        e.r(t), e.d(t, { initMap: () => r });
-        const a = [
+        e.r(t), e.d(t, { initMap: () => r, eqfeed_callback: () => l });
+        const n = [
           {
             featureType: "all",
             elementType: "all",
@@ -103,9 +106,9 @@
             ],
           },
         ];
-        var n = window;
-        for (var s in t) n[s] = t[s];
-        t.__esModule && Object.defineProperty(n, "__esModule", { value: !0 });
+        var s = window;
+        for (var i in t) s[i] = t[i];
+        t.__esModule && Object.defineProperty(s, "__esModule", { value: !0 });
       })();
     </script>
   </head>

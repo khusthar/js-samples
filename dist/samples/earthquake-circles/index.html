@@ -23,10 +23,10 @@
         "use strict";
         var e = {
             d: (t, o) => {
-              for (var r in o)
-                e.o(o, r) &&
-                  !e.o(t, r) &&
-                  Object.defineProperty(t, r, { enumerable: !0, get: o[r] });
+              for (var a in o)
+                e.o(o, a) &&
+                  !e.o(t, a) &&
+                  Object.defineProperty(t, a, { enumerable: !0, get: o[a] });
             },
             o: (e, t) => Object.prototype.hasOwnProperty.call(e, t),
             r: (e) => {
@@ -40,7 +40,7 @@
           },
           t = {};
         let o;
-        function r() {
+        function a() {
           o = new google.maps.Map(document.getElementById("map"), {
             zoom: 2,
             center: { lat: -33.865427, lng: 151.196123 },
@@ -66,10 +66,13 @@
               var t;
             });
         }
-        e.r(t), e.d(t, { initMap: () => r });
-        var a = window;
-        for (var l in t) a[l] = t[l];
-        t.__esModule && Object.defineProperty(a, "__esModule", { value: !0 });
+        function r(e) {
+          o.data.addGeoJson(e);
+        }
+        e.r(t), e.d(t, { initMap: () => a, eqfeed_callback: () => r });
+        var l = window;
+        for (var n in t) l[n] = t[n];
+        t.__esModule && Object.defineProperty(l, "__esModule", { value: !0 });
       })();
     </script>
   </head>

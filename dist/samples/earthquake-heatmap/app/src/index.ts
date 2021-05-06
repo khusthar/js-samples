@@ -48,4 +48,4 @@ function eqfeed_callback(results: any) {
     map: map,
   });
 }
-export { initMap };
+export { initMap, eqfeed_callback };
