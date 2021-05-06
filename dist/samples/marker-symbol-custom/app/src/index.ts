@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import "./style.css";
 
 // This example uses SVG path notation to add a vector-based symbol
 // as the icon for a marker. The resulting icon is a marker-shaped
@@ -46,5 +47,3 @@ function initMap(): void {
   });
 }
 export { initMap };
-
-import "./style.css"; // required for webpack

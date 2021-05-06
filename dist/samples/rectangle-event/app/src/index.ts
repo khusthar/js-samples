@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import "./style.css";
 
 // This example adds a user-editable rectangle to the map.
 // When the user changes the bounds of the rectangle,
@@ -76,5 +77,3 @@ function showNewRect() {
   infoWindow.open(map);
 }
 export { initMap };
-
-import "./style.css"; // required for webpack

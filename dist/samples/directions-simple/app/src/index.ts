@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import "./style.css";
 
 function initMap(): void {
   const directionsService = new google.maps.DirectionsService();
@@ -63,5 +64,3 @@ function calculateAndDisplayRoute(
   );
 }
 export { initMap };
-
-import "./style.css"; // required for webpack

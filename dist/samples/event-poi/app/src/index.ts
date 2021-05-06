@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import "./style.css";
 
 function initMap(): void {
   const origin = { lat: -33.871, lng: 151.197 };
@@ -131,5 +132,3 @@ class ClickEventHandler {
   }
 }
 export { initMap };
-
-import "./style.css"; // required for webpack

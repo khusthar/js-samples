@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import "./style.css";
 
 /* eslint-disable no-undef */
 // Initialize and add the map
@@ -61,5 +62,3 @@ function initMap(): void {
   deckOverlay.setMap(map);
 }
 export { initMap };
-
-import "./style.css"; // required for webpack

@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import "./style.css";
 let map: google.maps.Map;
 let autocomplete: google.maps.places.Autocomplete;
 let autocompleteInput: HTMLInputElement;
@@ -260,5 +261,3 @@ function update(location?: google.maps.LatLng) {
 }
 
 export { initMap };
-
-import "./style.css"; // required for webpack

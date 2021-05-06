@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import "./style.css";
 
 let autocompleteService: google.maps.places.AutocompleteService;
 let placesService: google.maps.places.PlacesService;
@@ -157,5 +158,3 @@ const initializeMaterialDesignComponents = () => {
 };
 
 export { initialize };
-
-import "./style.css"; // required for webpack

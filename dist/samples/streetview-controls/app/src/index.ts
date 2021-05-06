@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import "./style.css";
 
 function initPano() {
   // Note: constructed panorama objects have visible: true
@@ -31,5 +32,3 @@ function initPano() {
   );
 }
 export { initPano };
-
-import "./style.css"; // required for webpack

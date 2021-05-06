@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import "./style.css";
 
 function initMap(): void {
   const center = new google.maps.LatLng({ lat: -25.363, lng: 131.044 });
@@ -34,5 +35,3 @@ function initMap(): void {
   });
 }
 export { initMap };
-
-import "./style.css"; // required for webpack

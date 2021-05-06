@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import "./style.css";
 
 // This example adds hide() and show() methods to a custom overlay's prototype.
 // These methods toggle the visibility of the container <div>.
@@ -169,5 +170,3 @@ function initMap(): void {
   map.controls[google.maps.ControlPosition.TOP_RIGHT].push(toggleButton);
 }
 export { initMap };
-
-import "./style.css"; // required for webpack

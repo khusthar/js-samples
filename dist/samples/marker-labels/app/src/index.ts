@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import "./style.css";
 
 // In the following example, markers appear when the user clicks on the map.
 // Each marker is labeled with a single alphabetical character.
@@ -49,5 +50,3 @@ function addMarker(location: google.maps.LatLngLiteral, map: google.maps.Map) {
   });
 }
 export { initMap };
-
-import "./style.css"; // required for webpack

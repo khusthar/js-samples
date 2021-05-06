@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import "./style.css";
 /**
  * Creates a series of custom controls to demonstrate positioning
  * of controls within a map.
@@ -69,5 +70,3 @@ function initialize() {
   }
 }
 export { initialize };
-
-import "./style.css"; // required for webpack

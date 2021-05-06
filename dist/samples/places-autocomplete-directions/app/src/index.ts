@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import "./style.css";
 
 // This example requires the Places library. Include the libraries=places
 // parameter when you first load the API. For example:
@@ -150,5 +151,3 @@ class AutocompleteDirectionsHandler {
 }
 
 export { initMap };
-
-import "./style.css"; // required for webpack

@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import "./style.css";
 
 // This example adds a UI control allowing users to remove the polyline from the
 // map.
@@ -52,5 +53,3 @@ function removeLine() {
   flightPath.setMap(null);
 }
 export { initMap, addLine, removeLine };
-
-import "./style.css"; // required for webpack

@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import "./style.css";
 
 // This example requires the Geometry library. Include the libraries=geometry
 // parameter when you first load the API. For example:
@@ -62,5 +63,3 @@ function addLatLngToPoly(
   }
 }
 export { initMap };
-
-import "./style.css"; // required for webpack

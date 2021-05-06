@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import "./style.css";
 
 // This sample uses the Place Autocomplete widget to allow the user to search
 // for and select a place. The sample then displays an info window containing
@@ -92,5 +93,3 @@ function initMap(): void {
   });
 }
 export { initMap };
-
-import "./style.css"; // required for webpack

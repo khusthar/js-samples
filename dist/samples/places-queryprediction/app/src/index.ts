@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import "./style.css";
 
 // This example retrieves autocomplete predictions programmatically from the
 // autocomplete service, and displays them as an HTML list.
@@ -42,5 +43,3 @@ function initService() {
   service.getQueryPredictions({ input: "pizza near Syd" }, displaySuggestions);
 }
 export { initService };
-
-import "./style.css"; // required for webpack

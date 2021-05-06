@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import "./style.css";
 
 // The following example creates a marker in Stockholm, Sweden using a DROP
 // animation. Clicking on the marker will toggle the animation between a BOUNCE
@@ -46,5 +47,3 @@ function toggleBounce() {
   }
 }
 export { initMap };
-
-import "./style.css"; // required for webpack

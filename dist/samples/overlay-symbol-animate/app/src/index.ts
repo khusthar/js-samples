@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import "./style.css";
 
 // This example adds an animated symbol to a polyline.
 
@@ -65,5 +66,3 @@ function animateCircle(line: google.maps.Polyline) {
   }, 20);
 }
 export { initMap };
-
-import "./style.css"; // required for webpack

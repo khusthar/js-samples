@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import "./style.css";
 
 // This example requires the Drawing library. Include the libraries=drawing
 // parameter when you first load the API. For example:
@@ -56,5 +57,3 @@ function initMap(): void {
   drawingManager.setMap(map);
 }
 export { initMap };
-
-import "./style.css"; // required for webpack

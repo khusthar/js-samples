@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import "./style.css";
 
 function initMap(): void {
   const locationRio = { lat: -22.915, lng: -43.197 };
@@ -32,5 +33,3 @@ function initMap(): void {
   });
 }
 export { initMap };
-
-import "./style.css"; // required for webpack

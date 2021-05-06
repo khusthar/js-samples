@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import "./style.css";
 let mapLeft: google.maps.Map, mapRight: google.maps.Map;
 
 function initMap(): void {
@@ -111,5 +112,3 @@ function initMap(): void {
   });
 }
 export { initMap };
-
-import "./style.css"; // required for webpack

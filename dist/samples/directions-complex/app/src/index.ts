@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import "./style.css";
 
 function initMap(): void {
   const markerArray: google.maps.Marker[] = [];
@@ -141,5 +142,3 @@ function attachInstructionText(
   });
 }
 export { initMap };
-
-import "./style.css"; // required for webpack

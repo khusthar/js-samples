@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import "./style.css";
 
 // Load the Visualization API and the columnchart package.
 // @ts-ignore TODO(jpoehnelt) update to newest visualization library
@@ -106,5 +107,3 @@ function plotElevation(elevations, status) {
   });
 }
 export { initMap };
-
-import "./style.css"; // required for webpack

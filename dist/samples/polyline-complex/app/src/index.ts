@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import "./style.css";
 
 // This example creates an interactive map which constructs a polyline based on
 // user clicks. Note that the polyline only appears once its path property
@@ -54,5 +55,3 @@ function addLatLng(event: google.maps.MapMouseEvent) {
   });
 }
 export { initMap };
-
-import "./style.css"; // required for webpack

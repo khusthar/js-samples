@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import "./style.css";
 
 // This example adds a UI control allowing users to remove the
 // ground overlay from the map.
@@ -49,5 +50,3 @@ function removeOverlay() {
   historicalOverlay.setMap(null);
 }
 export { initMap, removeOverlay, addOverlay };
-
-import "./style.css"; // required for webpack

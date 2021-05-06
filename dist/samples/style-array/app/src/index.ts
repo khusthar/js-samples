@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import "./style.css";
 
 function initMap(): void {
   // Styles a map in night mode.
@@ -105,5 +106,3 @@ function initMap(): void {
   );
 }
 export { initMap };
-
-import "./style.css"; // required for webpack

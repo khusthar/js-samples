@@ -7,25 +7,29 @@ load("//rules:template.bzl", "template_file")
 load("@npm//@bazel/typescript:index.bzl", "ts_library")
 load("@npm//@bazel/concatjs:index.bzl", "concatjs_devserver")
 load("@rules_pkg//:pkg.bzl", "pkg_tar")
-load("@npm//@babel/cli:index.bzl", "babel")
+load("@npm//webpack-cli:index.bzl", webpack = "webpack_cli")
 
-
-def sample(name, YOUR_API_KEY="GOOGLE_MAPS_JS_SAMPLES_KEY", dependencies = []):
+def sample(name, YOUR_API_KEY = "GOOGLE_MAPS_JS_SAMPLES_KEY", dependencies = [], devDependencies = []):
     """ Generates sample outputs
 
     Args:
       name: sample directory name
       YOUR_API_KEY: environment variable name for api key
       dependencies: third party dependencies
+      devDependencies: third party dependencies
     """
+    has_es6_import = len(dependencies + devDependencies) > 0
+
+    js_dependencies = [
+        "@npm//@types/google.maps",
+        "@npm//@types/google.visualization",
+    ] + ["@npm//{}".format(package) for package in dependencies] + ["@npm//{}".format(package) for package in devDependencies]
+
     ts_library(
         name = "_compile",
         srcs = ["src/index.ts"],
         prodmode_target = "esnext",
-        deps = [
-            "@npm//@types/google.maps",
-            "@npm//@types/google.visualization",
-        ] + ["@npm//{}".format(package) for package in dependencies],
+        deps = js_dependencies,
         tags = ["ts"],
     )
 
@@ -56,7 +60,7 @@ def sample(name, YOUR_API_KEY="GOOGLE_MAPS_JS_SAMPLES_KEY", dependencies = []):
     )
 
     native.genrule(
-        name = "app_js",
+        name = "sample_js",
         srcs = [":compiled.js", "//:.eslintrc.json"],
         outs = ["index.js"],
         cmd = "cat $(location :compiled.js) > $@; " +
@@ -78,36 +82,6 @@ def sample(name, YOUR_API_KEY="GOOGLE_MAPS_JS_SAMPLES_KEY", dependencies = []):
             "@npm//prettier-linter-helpers",
         ],
         visibility = ["//visibility:public"],
-    )
-
-    # babel moves trailing region tags after the last non comment line
-    # need to remove before babel transpilation
-    native.genrule(
-        name = "compiled_no_region_tags",
-        srcs = [":index.js"],
-        outs = ["compiled_no_region_tags.js"],
-        cmd = "cat $(RULEDIR)/index.js > $@; " +
-              "$(location //rules:strip_region_tags_bin) $@; ",
-        tools = ["//rules:strip_region_tags_bin"],
-        visibility = ["//visibility:public"],
-    )
-
-    babel(
-        name = "iframe_js",
-        outs = [
-            "iframe.js",
-        ],
-        args = [
-            "$(execpath :compiled_no_region_tags.js)",
-            "--config-file $(location //:.babelrc)",
-            "--out-file",
-            "$(execpath :iframe.js)",
-        ],
-        data = [
-            "compiled_no_region_tags.js",
-            "//:.babelrc",
-            "@npm//@babel/preset-env",
-        ],
     )
 
     native.genrule(
@@ -148,44 +122,45 @@ def sample(name, YOUR_API_KEY="GOOGLE_MAPS_JS_SAMPLES_KEY", dependencies = []):
         )
 
     ## jsfiddle output
-    nunjucks(
-        name = "_jsfiddle_html",
-        template = ":src/index.njk",
-        json = ":package.json",
-        data = [
-            ":src/index.njk",
-            ":package.json",
-            "//shared:templates",
-        ],
-        outs = ["_jsfiddle.html"],
-        mode = "jsfiddle",
-    )
+    if not has_es6_import:
+        nunjucks(
+            name = "_jsfiddle_html",
+            template = ":src/index.njk",
+            json = ":package.json",
+            data = [
+                ":src/index.njk",
+                ":package.json",
+                "//shared:templates",
+            ],
+            outs = ["_jsfiddle.html"],
+            mode = "jsfiddle",
+        )
 
-    native.genrule(
-        name = "jsfiddle_html",
-        srcs = [":_jsfiddle.html"],
-        outs = ["jsfiddle.html"],
-        cmd = "cat $(location :_jsfiddle.html) > $@; " +
-              "tmp=$$(mktemp); " +
-              "$(location //rules:strip_region_tags_bin) $@; " +
-              "sed \"s/YOUR_API_KEY/$${}/g\" $@ > $$tmp && cat $$tmp > $@; ".format(YOUR_API_KEY) +
-              "$(location //rules:prettier) --write $@; ",
-        tools = ["//rules:prettier", "//rules:strip_region_tags_bin"],
-        visibility = ["//visibility:public"],
-    )
+        native.genrule(
+            name = "jsfiddle_html",
+            srcs = [":_jsfiddle.html"],
+            outs = ["jsfiddle.html"],
+            cmd = "cat $(location :_jsfiddle.html) > $@; " +
+                  "tmp=$$(mktemp); " +
+                  "$(location //rules:strip_region_tags_bin) $@; " +
+                  "sed \"s/YOUR_API_KEY/$${}/g\" $@ > $$tmp && cat $$tmp > $@; ".format(YOUR_API_KEY) +
+                  "$(location //rules:prettier) --write $@; ",
+            tools = ["//rules:prettier", "//rules:strip_region_tags_bin"],
+            visibility = ["//visibility:public"],
+        )
 
-    native.genrule(
-        name = "jsfiddle_js",
-        outs = [":jsfiddle.js"],
-        cmd = "sed  \"s/YOUR_API_KEY/$${}/g\" $(location :index.js) > $@; ".format(YOUR_API_KEY) +
-              "$(location //rules:strip_region_tags_bin) $@; " +
-              "$(location //rules:prettier) --write $@; ",
-        srcs = [
-            ":index.js",
-        ],
-        tools = ["//rules:prettier", "//rules:strip_region_tags_bin"],
-        visibility = ["//visibility:public"],
-    )
+        native.genrule(
+            name = "jsfiddle_js",
+            outs = [":jsfiddle.js"],
+            cmd = "sed  \"s/YOUR_API_KEY/$${}/g\" $(location :index.js) > $@; ".format(YOUR_API_KEY) +
+                  "$(location //rules:strip_region_tags_bin) $@; " +
+                  "$(location //rules:prettier) --write $@; ",
+            srcs = [
+                ":index.js",
+            ],
+            tools = ["//rules:prettier", "//rules:strip_region_tags_bin"],
+            visibility = ["//visibility:public"],
+        )
 
     ## sample html - two version, inlined and linked css/js
     nunjucks(
@@ -201,20 +176,21 @@ def sample(name, YOUR_API_KEY="GOOGLE_MAPS_JS_SAMPLES_KEY", dependencies = []):
         mode = "sample",
     )
 
-    native.genrule(
-        name = "inline_html",
-        srcs = [
-            ":_sample.html",
-            ":index.js",
-            ":style.css",
-        ],
-        outs = ["inline.html"],
-        cmd = "$(location //rules:inline) $(location :_sample.html) $@; " +
-              "$(location //rules:strip_region_tags_bin) $@; " +
-              "$(location //rules:prettier) --write $@; ",
-        tools = ["//rules:inline", "//rules:prettier", "//rules:strip_region_tags_bin"],
-        visibility = ["//visibility:public"],
-    )
+    if not has_es6_import:
+        native.genrule(
+            name = "inline_html",
+            srcs = [
+                ":_sample.html",
+                ":index.js",
+                ":style.css",
+            ],
+            outs = ["inline.html"],
+            cmd = "$(location //rules:inline) $(location :_sample.html) $@; " +
+                  "$(location //rules:strip_region_tags_bin) $@; " +
+                  "$(location //rules:prettier) --write $@; ",
+            tools = ["//rules:inline", "//rules:prettier", "//rules:strip_region_tags_bin"],
+            visibility = ["//visibility:public"],
+        )
 
     native.genrule(
         name = "sample_html",
@@ -249,7 +225,64 @@ def sample(name, YOUR_API_KEY="GOOGLE_MAPS_JS_SAMPLES_KEY", dependencies = []):
         cmd = "sed \"s/YOUR_API_KEY/$${}/g\" $(location :_index.html) > $@; ".format(YOUR_API_KEY),
     )
 
-    # for github pages
+    ###### START IFRAME ######
+    nunjucks(
+        name = "_iframe",
+        template = ":src/index.njk",
+        json = ":package.json",
+        data = [
+            ":src/index.njk",
+            ":package.json",
+            "//shared:templates",
+        ],
+        outs = ["_iframe.html"],
+        mode = "iframe",
+    )
+
+    webpack(
+        name = "iframe_bundle",
+        outs = ["iframe.js"],
+        args = [
+            "--mode production",
+            "--entry",
+            "./$(execpath :src/index.ts)",
+            "--config",
+            "./$(execpath //:webpack.iframe.js)",
+            "-o $(@D)",
+            "--output-filename iframe.js",
+        ],
+        data = [
+            ":src/index.ts",
+            # config
+            "//:webpack.iframe.js",
+            "//:tsconfig.json",
+            # loaders
+            "@npm//babel-loader",
+            "@npm//ts-loader",
+            # misc
+            "@npm//dotenv",
+            # plugins
+        ] + js_dependencies,
+        visibility = ["//visibility:public"],
+    )
+
+    # the iframe output does not have any html, head, body tags. this is a consequence of Google's documentation site
+    native.genrule(
+        name = "iframe_html",
+        srcs = [":_iframe.html", ":iframe.js", ":style.css"],
+        outs = ["iframe.html"],
+        cmd = "$(location //rules:inline) $(location :_iframe.html) $@; " +
+              "$(location //rules:strip_region_tags_bin) $@; " +
+              "tmp=$$(mktemp); " +
+              "sed \"s/YOUR_API_KEY/$${}/g\" $@ > $$tmp && cat $$tmp > $@; ".format(YOUR_API_KEY) +
+              "$(location //rules:prettier) --write $@; ",
+        tools = ["//rules:inline", "//rules:strip_region_tags_bin", "//rules:prettier"],
+        visibility = ["//visibility:public"],
+    )
+    ###### END IFRAME ######
+
+    ###### START GITHUB ######
+    # Note: uses same iframe.js but different html template
     nunjucks(
         name = "_github_html",
         template = ":src/index.njk",
@@ -276,44 +309,20 @@ def sample(name, YOUR_API_KEY="GOOGLE_MAPS_JS_SAMPLES_KEY", dependencies = []):
         visibility = ["//visibility:public"],
     )
 
-    nunjucks(
-        name = "_iframe",
-        template = ":src/index.njk",
-        json = ":package.json",
-        data = [
-            ":src/index.njk",
-            ":package.json",
-            "//shared:templates",
-        ],
-        outs = ["_iframe.html"],
-        mode = "iframe",
-    )
+    ###### END GITHUB ######
 
-    # the iframe output does not have any html, head, body tags. this is a consequence of Google's documentation site
+    ###### START APP ######
     native.genrule(
-        name = "iframe_html",
-        srcs = [":_iframe.html", ":iframe.js", ":style.css"],
-        outs = ["iframe.html"],
-        cmd = "$(location //rules:inline) $(location :_iframe.html) $@; " +
-              "$(location //rules:strip_region_tags_bin) $@; " +
-              "tmp=$$(mktemp); " +
-              "sed \"s/YOUR_API_KEY/$${}/g\" $@ > $$tmp && cat $$tmp > $@; ".format(YOUR_API_KEY) +
-              "$(location //rules:prettier) --write $@; ",
-        tools = ["//rules:inline", "//rules:strip_region_tags_bin", "//rules:prettier"],
-        visibility = ["//visibility:public"],
-    )
-
-    native.genrule(
-        name = "env",
+        name = "app_env",
         srcs = ["//shared:env.tpl"],
-        outs = [".env"],
+        outs = ["app/.env"],
         cmd = "sed \"s/YOUR_API_KEY/$${}/g\" $(location //shared:env.tpl) > $@;".format(YOUR_API_KEY),
     )
 
     native.genrule(
-        name = "package_html",
+        name = "app_html",
         srcs = [":sample.html"],
-        outs = ["_package.html"],
+        outs = ["app/src/index.html"],
         cmd = "cat $(location :sample.html) >$@; " +
               "$(location //rules:strip_region_tags_bin) $@; " +
               "$(location //rules:prettier) --write $@; ",
@@ -321,22 +330,22 @@ def sample(name, YOUR_API_KEY="GOOGLE_MAPS_JS_SAMPLES_KEY", dependencies = []):
     )
 
     native.genrule(
-        name = "package_ts",
+        name = "app_ts",
         srcs = [":src/index.ts"],
-        outs = ["_package.ts"],
+        outs = ["app/src/index.ts"],
         cmd = "cat $(location :src/index.ts) > $@; " +
               "$(location //rules:strip_region_tags_bin) $@; " +
-              "echo '\nimport \"./style.css\"; // required for webpack' >> $@; " +
               "tmp=$$(mktemp); " +
+              "sed '16 i import \"./style.css\";' $@ > $$tmp && cat $$tmp > $@; " +
               "sed '/.*PRESERVE_COMMENT_ABOVE.*/d' $@ > $$tmp && cat $$tmp > $@; " +  # it isn't possible to have tsc preserve some comments
               "$(location //rules:prettier) --write $@; ",
         tools = ["//rules:prettier", "//rules:strip_region_tags_bin"],
     )
 
     native.genrule(
-        name = "package_css",
+        name = "app_css",
         srcs = [":style.css"],
-        outs = ["_package.css"],
+        outs = ["app/src/style.css"],
         cmd = "cat $(location :style.css) > $@; " +
               "$(location //rules:strip_region_tags_bin) $@; " +
               "$(location //rules:prettier) --write $@; ",
@@ -345,16 +354,17 @@ def sample(name, YOUR_API_KEY="GOOGLE_MAPS_JS_SAMPLES_KEY", dependencies = []):
 
     pkg_tar(
         name = "{}-package".format(name),
-        srcs = [":.env", ":_package.css", ":_package.html", ":_package.ts", "//shared:package"],
+        srcs = [":app/.env", ":app_css", ":app_html", ":app_ts", "//shared:package"],
         strip_prefix = ".",
         extension = "tgz",
         mode = "0755",
         remap_paths = {
-            "/_package.ts": "src/index.ts",
-            "/_package.html": "src/index.html",
-            "/_package.css": "src/style.css",
+            "/app/src/index.ts": "src/index.ts",
+            "/app/src/index.html": "src/index.html",
+            "/app/src/style.css": "src/style.css",
+            "/app/.env": ".env",
             "shared/package/": "",
-        },
+        }
     )
 
     template_file(
@@ -367,29 +377,43 @@ def sample(name, YOUR_API_KEY="GOOGLE_MAPS_JS_SAMPLES_KEY", dependencies = []):
     native.filegroup(
         name = "package",
         srcs = [
-           ":.env", ":_package.css", ":_package.html", ":_package.ts", "//shared:package"
+            ":app_env",
+            ":app_css",
+            ":app_html",
+            ":app_ts",
+            "//shared:package",
         ],
         visibility = ["//visibility:public"],
     )
+    ###### END APP ######
+
+    html_output_files = [
+        ":github.html",  # for development and googlemaps.github.io
+        ":sample.html",  # for developers.google.com *html* tab
+        ":iframe.html",  # for developers.google.com iframe
+    ]
+
+    js_output_files = [
+        ":index.js",
+    ]
+
+    if not has_es6_import:
+        html_output_files += [
+            ":jsfiddle.html",
+            ":inline.html",  # for developers.google.com *all* tab
+        ]
+
+        js_output_files.append(":jsfiddle.js")
 
     native.filegroup(
         name = "js",
-        srcs = [
-            ":index.js",
-            ":jsfiddle.js",
-        ],
+        srcs = js_output_files,
         visibility = ["//visibility:public"],
     )
 
     native.filegroup(
         name = "html",
-        srcs = [
-            ":github.html",  # for development and googlemaps.github.io
-            ":jsfiddle.html",  # for linkout to jsfiddle
-            ":sample.html",  # for developers.google.com *html* tab
-            ":inline.html",  # for developers.google.com *all* tab
-            ":iframe.html",  # for developers.google.com iframe
-        ],
+        srcs = html_output_files,
         visibility = ["//visibility:public"],
     )
 

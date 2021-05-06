@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import "./style.css";
 
 let map: google.maps.Map;
 let maxZoomService: google.maps.MaxZoomService;
@@ -49,5 +50,3 @@ function showMaxZoom(e: google.maps.MapMouseEvent) {
   );
 }
 export { initMap };
-
-import "./style.css"; // required for webpack

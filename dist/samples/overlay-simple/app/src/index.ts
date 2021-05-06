@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import "./style.css";
 
 // This example creates a custom overlay called USGSOverlay, containing
 // a U.S. Geological Survey (USGS) image of the relevant area on the map.
@@ -129,5 +130,3 @@ function initMap(): void {
   overlay.setMap(map);
 }
 export { initMap };
-
-import "./style.css"; // required for webpack

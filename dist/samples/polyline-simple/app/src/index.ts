@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import "./style.css";
 
 // This example creates a 2-pixel-wide red polyline showing the path of
 // the first trans-Pacific flight between Oakland, CA, and Brisbane,
@@ -45,5 +46,3 @@ function initMap(): void {
   flightPath.setMap(map);
 }
 export { initMap };
-
-import "./style.css"; // required for webpack

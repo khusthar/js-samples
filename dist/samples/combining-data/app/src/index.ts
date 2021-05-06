@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import "./style.css";
 
 const mapStyle: google.maps.MapTypeStyle[] = [
   {
@@ -224,5 +225,3 @@ function mouseOutOfRegion(e: any) {
 }
 
 export { initMap };
-
-import "./style.css"; // required for webpack

@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import "./style.css";
 
 /*
  * Click the map to set a new location for the Street View camera.
@@ -83,5 +84,3 @@ function processSVData(
   }
 }
 export { initMap };
-
-import "./style.css"; // required for webpack

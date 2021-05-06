@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import "./style.css";
 
 // @ts-nocheck TODO(jpoehnelt) remove when fixed
 
@@ -61,5 +62,3 @@ function geocodeAddress(geocoder: google.maps.Geocoder, map: google.maps.Map) {
   );
 }
 export { initMap };
-
-import "./style.css"; // required for webpack

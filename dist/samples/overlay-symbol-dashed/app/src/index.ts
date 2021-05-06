@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import "./style.css";
 
 // This example converts a polyline to a dashed line, by
 // setting the opacity of the polyline to 0, and drawing an opaque symbol
@@ -55,5 +56,3 @@ function initMap(): void {
   });
 }
 export { initMap };
-
-import "./style.css"; // required for webpack

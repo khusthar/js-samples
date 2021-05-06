@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import "./style.css";
 
 // This example uses a GroundOverlay to place an image on the map
 // showing an antique map of Newark, NJ.
@@ -42,5 +43,3 @@ function initMap(): void {
   historicalOverlay.setMap(map);
 }
 export { initMap };
-
-import "./style.css"; // required for webpack

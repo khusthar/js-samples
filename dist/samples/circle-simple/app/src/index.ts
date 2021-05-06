@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import "./style.css";
 
 // This example creates circles on the map, representing populations in North
 // America.
@@ -71,5 +72,3 @@ function initMap(): void {
   }
 }
 export { initMap };
-
-import "./style.css"; // required for webpack

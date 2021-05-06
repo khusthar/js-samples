@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import "./style.css";
 
 let panorama: google.maps.StreetViewPanorama;
 
@@ -27,5 +28,3 @@ function initialize() {
   );
 }
 export { initialize };
-
-import "./style.css"; // required for webpack

@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import "./style.css";
 
 // This example creates a simple polygon representing the Bermuda Triangle.
 
@@ -46,5 +47,3 @@ function initMap(): void {
   bermudaTriangle.setMap(map);
 }
 export { initMap };
-
-import "./style.css"; // required for webpack

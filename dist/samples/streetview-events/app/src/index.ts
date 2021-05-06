@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import "./style.css";
 
 function initPano() {
   const panorama = new google.maps.StreetViewPanorama(
@@ -70,5 +71,3 @@ function initPano() {
   });
 }
 export { initPano };
-
-import "./style.css"; // required for webpack

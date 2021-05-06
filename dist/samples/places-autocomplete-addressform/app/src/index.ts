@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import "./style.css";
 
 // This sample uses the Places Autocomplete widget to:
 // 1. Help the user select a place
@@ -110,5 +111,3 @@ function fillInAddress() {
 }
 
 export { initAutocomplete };
-
-import "./style.css"; // required for webpack

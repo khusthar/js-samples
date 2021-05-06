@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import "./style.css";
 
 const map = new google.maps.Map(document.getElementById("map") as HTMLElement, {
   center: { lat: -34.397, lng: 150.644 },
@@ -20,5 +21,3 @@ const map = new google.maps.Map(document.getElementById("map") as HTMLElement, {
 });
 
 export { map };
-
-import "./style.css"; // required for webpack

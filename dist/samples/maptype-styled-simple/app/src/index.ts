@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import "./style.css";
 
 function initMap(): void {
   // Create a new StyledMapType object, passing it an array of styles,
@@ -149,5 +150,3 @@ function initMap(): void {
   map.setMapTypeId("styled_map");
 }
 export { initMap };
-
-import "./style.css"; // required for webpack

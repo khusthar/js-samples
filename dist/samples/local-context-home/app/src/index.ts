@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import "./style.css";
 
 let map: google.maps.Map;
 let localContextMapView;
@@ -273,5 +274,3 @@ function initMap() {
 }
 
 export { initMap, localContextMapView };
-
-import "./style.css"; // required for webpack

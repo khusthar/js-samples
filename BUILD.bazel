@@ -11,8 +11,9 @@ exports_files(
         ".babelrc.jsfiddle.json",
         "package.json",
         "jest.config.js",
+        "rollup.config.js",
         "tsconfig.json",
-    ],
+    ] + glob(["webpack.*.js"]),
     visibility = ["//:__subpackages__"],
 )
 
@@ -103,10 +104,6 @@ eslint(
 
 remap_files = [
     ["samples/{}/github.html", "samples/{}/index.html"],
-    ["samples/{}/.env", "samples/{}/app/.env"],
-    ["samples/{}/_package.css", "samples/{}/app/src/style.css"],
-    ["samples/{}/_package.html", "samples/{}/app/src/index.html"],
-    ["samples/{}/_package.ts", "samples/{}/app/src/index.ts"],
 ]
 
 remap_paths = {

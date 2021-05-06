@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import "./style.css";
 
 function initialize() {
   const fenway = { lat: 42.345573, lng: -71.098326 };
@@ -36,5 +37,3 @@ function initialize() {
   map.setStreetView(panorama);
 }
 export { initialize };
-
-import "./style.css"; // required for webpack
