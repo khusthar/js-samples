@@ -398,7 +398,7 @@ def sample(name, YOUR_API_KEY = "GOOGLE_MAPS_JS_SAMPLES_KEY", dependencies = [],
             ":readme",
             ":webpack-config",
             ":tsconfig",
-            # ":sandbox-config", # code sandbox does not support webpack and the parcel template has issues with async/callback scripts
+            ":sandbox-config", # code sandbox does not support webpack and the parcel template has issues with async/callback scripts
         ],
         visibility = ["//visibility:public"],
     )
