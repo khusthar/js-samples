@@ -59,8 +59,8 @@ async function main(argv) {
     dependencies,
     devDependencies,
     scripts: {
-      build: "webpack --config ./webpack.prod.js --mode production",
-      start: "webpack serve --config --mode development ./webpack.dev.js",
+      build: "webpack --config ./webpack.config.js --mode production",
+      start: "webpack serve --config  ./webpack.config.js --mode development",
     },
   };
 
