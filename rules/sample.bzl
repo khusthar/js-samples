@@ -3,13 +3,15 @@ load("//rules:nunjucks.bzl", "nunjucks")
 load("//rules:prettier.bzl", "prettier")
 load("//rules:tags.bzl", "tags_test")
 load("//rules:js_test.bzl", "js_test")
+load("//rules:package.bzl", "package")
 load("//rules:template.bzl", "template_file")
 load("@npm//@bazel/typescript:index.bzl", "ts_library")
 load("@npm//@bazel/concatjs:index.bzl", "concatjs_devserver")
 load("@rules_pkg//:pkg.bzl", "pkg_tar")
 load("@npm//webpack-cli:index.bzl", webpack = "webpack_cli")
+load("@bazel_skylib//rules:copy_file.bzl", "copy_file")
 
-def sample(name, YOUR_API_KEY = "GOOGLE_MAPS_JS_SAMPLES_KEY", dependencies = [], devDependencies = []):
+def sample(name, YOUR_API_KEY = "GOOGLE_MAPS_JS_SAMPLES_KEY", dependencies = [], devDependencies = ["@types/google.maps"]):
     """ Generates sample outputs
 
     Args:
@@ -18,12 +20,30 @@ def sample(name, YOUR_API_KEY = "GOOGLE_MAPS_JS_SAMPLES_KEY", dependencies = [],
       dependencies: third party dependencies
       devDependencies: third party dependencies
     """
-    has_es6_import = len(dependencies + devDependencies) > 0
+    has_es6_import = (len(dependencies) or len(devDependencies) > 1)
 
-    js_dependencies = [
-        "@npm//@types/google.maps",
-        "@npm//@types/google.visualization",
-    ] + ["@npm//{}".format(package) for package in dependencies] + ["@npm//{}".format(package) for package in devDependencies]
+    js_dependencies = ["@npm//{}".format(package) for package in dependencies] + ["@npm//{}".format(package) for package in devDependencies]
+
+    webpack_dependencies = [
+        "@npm//webpack",
+        "@npm//webpack-cli",
+        # loaders
+        "@npm//babel-loader",
+        "@npm//ts-loader",
+        "@npm//string-replace-loader",
+        "@npm//css-loader",
+        # plugins
+        "@npm//html-webpack-plugin",
+        "@npm//mini-css-extract-plugin",
+        # misc
+        "@npm//typescript",
+        "@npm//dotenv",
+    ]
+
+    # keeping this separate to prevent build slowdown
+    webpack_serve_dependencies = webpack_dependencies + [
+        "@npm//webpack-dev-server",
+    ]
 
     ts_library(
         name = "_compile",
@@ -244,25 +264,21 @@ def sample(name, YOUR_API_KEY = "GOOGLE_MAPS_JS_SAMPLES_KEY", dependencies = [],
         outs = ["iframe.js"],
         args = [
             "--mode production",
+            "--env SKIP_HTML",
             "--entry",
             "./$(execpath :src/index.ts)",
             "--config",
-            "./$(execpath //:webpack.iframe.js)",
+            "./$(execpath //shared:webpack.config.js)",
             "-o $(@D)",
             "--output-filename iframe.js",
         ],
         data = [
             ":src/index.ts",
             # config
-            "//:webpack.iframe.js",
+            "//shared:webpack.config.js",
             "//:tsconfig.json",
-            # loaders
-            "@npm//babel-loader",
-            "@npm//ts-loader",
-            # misc
-            "@npm//dotenv",
             # plugins
-        ] + js_dependencies,
+        ] + js_dependencies + webpack_dependencies,
         visibility = ["//visibility:public"],
     )
 
@@ -352,19 +368,11 @@ def sample(name, YOUR_API_KEY = "GOOGLE_MAPS_JS_SAMPLES_KEY", dependencies = [],
         tools = ["//rules:prettier", "//rules:strip_region_tags_bin"],
     )
 
-    pkg_tar(
-        name = "{}-package".format(name),
-        srcs = [":app/.env", ":app_css", ":app_html", ":app_ts", "//shared:package"],
-        strip_prefix = ".",
-        extension = "tgz",
-        mode = "0755",
-        remap_paths = {
-            "/app/src/index.ts": "src/index.ts",
-            "/app/src/index.html": "src/index.html",
-            "/app/src/style.css": "src/style.css",
-            "/app/.env": ".env",
-            "shared/package/": "",
-        }
+    package(
+        out = "app/package.json",
+        devDependencies = devDependencies + webpack_serve_dependencies,
+        dependencies = dependencies,
+        name = name,
     )
 
     template_file(
@@ -374,6 +382,11 @@ def sample(name, YOUR_API_KEY = "GOOGLE_MAPS_JS_SAMPLES_KEY", dependencies = [],
         substitutions = {"TMPL_SAMPLE": name},
     )
 
+    copy_file(name = "readme", src = "//shared:README.md", out = "app/README.md")
+    copy_file(name = "webpack-config", src = "//shared:webpack.config.js", out = "app/webpack.config.js")
+    copy_file(name = "tsconfig", src = "//:tsconfig.json", out = "app/tsconfig.json")
+    copy_file(name = "sandbox-config", src = "//shared:sandbox.config.json", out = "app/sandbox.config.json")
+
     native.filegroup(
         name = "package",
         srcs = [
@@ -381,9 +394,29 @@ def sample(name, YOUR_API_KEY = "GOOGLE_MAPS_JS_SAMPLES_KEY", dependencies = [],
             ":app_css",
             ":app_html",
             ":app_ts",
-            "//shared:package",
+            ":app/package.json",
+            ":readme",
+            ":webpack-config",
+            ":tsconfig",
+            ":sandbox-config", # code sandbox does not support webpack and the parcel template has issues with async/callback scripts
         ],
         visibility = ["//visibility:public"],
+    )
+
+    pkg_tar(
+        name = "{}-package".format(name),
+        srcs = [":package"],
+        strip_prefix = ".",
+        extension = "tgz",
+        mode = "0755",
+        remap_paths = {"/app": ""},
+        #     "/app/src/index.ts": "src/index.ts",
+        #     "/app/src/index.html": "src/index.html",
+        #     "/app/src/style.css": "src/style.css",
+        #     "/app/.env": ".env",
+        #     "/app/package.json": "package.json",
+        #     "/app"
+        # }
     )
     ###### END APP ######
 

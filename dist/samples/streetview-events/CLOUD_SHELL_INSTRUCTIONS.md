@@ -7,6 +7,9 @@
 This tutorial will walk through the process of running a web application from
 the `streetview-events` sample using TypeScript, Babel, and Webpack.
 
+For feedback related to this sample, please open a new issue on
+[GitHub](https://github.com/googlemaps/js-samples/issues).
+
 Click the **Start** button to continue.
 
 ## Initialize the sample application
@@ -15,7 +18,7 @@ Open Cloud Shell by clicking the
 <walkthrough-cloud-shell-icon></walkthrough-cloud-shell-icon> button in the
 navigation bar in the upper-right corner of the console.
 
-Use the [@googlemaps/js-samples](https://www.npmjs.com/package/@googlemaps/js-samples) package to 
+Use the [@googlemaps/js-samples](https://www.npmjs.com/package/@googlemaps/js-samples) package to
 extract the sample into the specified directory.
 
 ```bash
@@ -41,7 +44,7 @@ npm i
 After installation, Webpack can be called using the following command.
 
 ```bash
-npm run dev
+npm start
 ```
 
 For configuration of Webpack, check
@@ -70,7 +73,7 @@ After changing the key, the Webpack server must be restarted with the following
 command:
 
 ```bash
-npm run dev
+npm start
 ```
 
 ## Inspect and edit the application files
