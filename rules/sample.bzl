@@ -332,7 +332,7 @@ def sample(name, YOUR_API_KEY = "GOOGLE_MAPS_JS_SAMPLES_KEY", dependencies = [],
         name = "app_env",
         srcs = ["//shared:env.tpl"],
         outs = ["app/.env"],
-        cmd = "sed \"s/YOUR_API_KEY/$${}/g\" $(location //shared:env.tpl) > $@;".format(YOUR_API_KEY),
+        cmd = "sed \"s/YOUR_API_KEY/$${}/g\" $(location //shared:env.tpl) > $@;".format("GOOGLE_MAPS_JS_SAMPLES_SANDBOX_KEY"),
     )
 
     native.genrule(
