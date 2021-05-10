@@ -162,12 +162,10 @@
                         const s = a.data.getFeatureById(o);
                         s && s.setProperty("census_variable", t);
                       }),
-                      (document.getElementById(
-                        "census-min"
-                      ).textContent = n.toLocaleString()),
-                      (document.getElementById(
-                        "census-max"
-                      ).textContent = r.toLocaleString());
+                      (document.getElementById("census-min").textContent =
+                        n.toLocaleString()),
+                      (document.getElementById("census-max").textContent =
+                        r.toLocaleString());
                   }),
                   t.send();
               })(e.options[e.selectedIndex].value);
@@ -211,12 +209,9 @@
           e.feature.setProperty("state", "hover");
           const t =
             ((e.feature.getProperty("census_variable") - n) / (r - n)) * 100;
-          (document.getElementById(
-            "data-label"
-          ).textContent = e.feature.getProperty("NAME")),
-            (document.getElementById(
-              "data-value"
-            ).textContent = e.feature
+          (document.getElementById("data-label").textContent =
+            e.feature.getProperty("NAME")),
+            (document.getElementById("data-value").textContent = e.feature
               .getProperty("census_variable")
               .toLocaleString()),
             (document.getElementById("data-box").style.display = "block"),

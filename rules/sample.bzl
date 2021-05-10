@@ -399,7 +399,7 @@ def sample(name, YOUR_API_KEY = "GOOGLE_MAPS_JS_SAMPLES_KEY", dependencies = [],
             ":readme",
             ":webpack-config",
             ":tsconfig",
-            ":sandbox-config", # code sandbox does not support webpack and the parcel template has issues with async/callback scripts
+            ":sandbox-config",  # code sandbox does not support webpack and the parcel template has issues with async/callback scripts
         ],
         visibility = ["//visibility:public"],
     )
@@ -489,8 +489,14 @@ def sample(name, YOUR_API_KEY = "GOOGLE_MAPS_JS_SAMPLES_KEY", dependencies = [],
     native.genrule(
         name = "package_test",
         srcs = [":{}-package.tgz".format(name)],
-        cmd = "set -x; tar xf $(location :{}-package.tgz); ".format(name) +
-              "npm i; npm run build; cat public/index.js > $@",
+        cmd = "set -x; " +
+              "tmp=`mktemp -d`; " +
+              "tar xf $(location :{}-package.tgz) -C $$tmp; ".format(name) +
+              "pushd $$tmp; " +
+              "npm i; " +
+              "npm run build; " +
+              "popd; " +
+              "cat $$tmp/public/index.js > $@",
         local = 1,
         tags = ["manual", "package"],
         outs = ["index.webpack.js"],

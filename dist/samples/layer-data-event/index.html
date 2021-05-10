@@ -63,9 +63,8 @@
               strokeWeight: 1,
             })),
             o.data.addListener("mouseover", (e) => {
-              document.getElementById(
-                "info-box"
-              ).textContent = e.feature.getProperty("letter");
+              document.getElementById("info-box").textContent =
+                e.feature.getProperty("letter");
             });
         }
         e.r(t), e.d(t, { initMap: () => r });

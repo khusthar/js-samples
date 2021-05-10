@@ -38,9 +38,8 @@ function initMap(): void {
 
   // Set mouseover event for each feature.
   map.data.addListener("mouseover", (event) => {
-    (document.getElementById(
-      "info-box"
-    ) as HTMLElement).textContent = event.feature.getProperty("letter");
+    (document.getElementById("info-box") as HTMLElement).textContent =
+      event.feature.getProperty("letter");
   });
 }
 export { initMap };

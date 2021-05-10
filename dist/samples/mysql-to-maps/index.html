@@ -41,9 +41,10 @@
               4 == l.readyState &&
                 ((l.onreadystatechange = a),
                 ((o) => {
-                  const a = o.responseXML.documentElement.getElementsByTagName(
-                    "marker"
-                  );
+                  const a =
+                    o.responseXML.documentElement.getElementsByTagName(
+                      "marker"
+                    );
                   Array.prototype.forEach.call(a, (o) => {
                     o.getAttribute("id");
                     const a = o.getAttribute("name"),

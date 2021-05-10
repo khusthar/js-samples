@@ -181,36 +181,32 @@
             disableDefaultUI: !0,
           })),
             (function (e) {
-              (document.querySelector(
-                ".zoom-control-in"
-              ).onclick = function () {
-                e.setZoom(e.getZoom() + 1);
-              }),
-                (document.querySelector(
-                  ".zoom-control-out"
-                ).onclick = function () {
-                  e.setZoom(e.getZoom() - 1);
+              (document.querySelector(".zoom-control-in").onclick =
+                function () {
+                  e.setZoom(e.getZoom() + 1);
                 }),
+                (document.querySelector(".zoom-control-out").onclick =
+                  function () {
+                    e.setZoom(e.getZoom() - 1);
+                  }),
                 e.controls[google.maps.ControlPosition.RIGHT_BOTTOM].push(
                   document.querySelector(".zoom-control")
                 );
             })(t),
             (function (e) {
               const o = document.querySelector(".maptype-control");
-              (document.querySelector(
-                ".maptype-control-map"
-              ).onclick = function () {
-                o.classList.add("maptype-control-is-map"),
-                  o.classList.remove("maptype-control-is-satellite"),
-                  e.setMapTypeId("roadmap");
-              }),
-                (document.querySelector(
-                  ".maptype-control-satellite"
-                ).onclick = function () {
-                  o.classList.remove("maptype-control-is-map"),
-                    o.classList.add("maptype-control-is-satellite"),
-                    e.setMapTypeId("hybrid");
+              (document.querySelector(".maptype-control-map").onclick =
+                function () {
+                  o.classList.add("maptype-control-is-map"),
+                    o.classList.remove("maptype-control-is-satellite"),
+                    e.setMapTypeId("roadmap");
                 }),
+                (document.querySelector(".maptype-control-satellite").onclick =
+                  function () {
+                    o.classList.remove("maptype-control-is-map"),
+                      o.classList.add("maptype-control-is-satellite"),
+                      e.setMapTypeId("hybrid");
+                  }),
                 e.controls[google.maps.ControlPosition.LEFT_TOP].push(o);
             })(t),
             (function (e) {
@@ -235,11 +231,15 @@
                     ? e.mozRequestFullScreen()
                     : e.msRequestFullScreen && e.msRequestFullScreen();
                 }),
-                (document.onwebkitfullscreenchange = document.onmsfullscreenchange = document.onmozfullscreenchange = document.onfullscreenchange = function () {
-                  l(o)
-                    ? t.classList.add("is-fullscreen")
-                    : t.classList.remove("is-fullscreen");
-                });
+                (document.onwebkitfullscreenchange =
+                  document.onmsfullscreenchange =
+                  document.onmozfullscreenchange =
+                  document.onfullscreenchange =
+                    function () {
+                      l(o)
+                        ? t.classList.add("is-fullscreen")
+                        : t.classList.remove("is-fullscreen");
+                    });
             })(t);
         }
         function l(e) {

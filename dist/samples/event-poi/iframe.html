@@ -63,9 +63,8 @@
           this.directionsRenderer.setMap(e),
           (this.placesService = new google.maps.places.PlacesService(e)),
           (this.infowindow = new google.maps.InfoWindow()),
-          (this.infowindowContent = document.getElementById(
-            "infowindow-content"
-          )),
+          (this.infowindowContent =
+            document.getElementById("infowindow-content")),
           this.infowindow.setContent(this.infowindowContent),
           this.map.addListener("click", this.handleClick.bind(this));
       }
