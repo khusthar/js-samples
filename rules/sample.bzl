@@ -353,7 +353,8 @@ def sample(name, YOUR_API_KEY = "GOOGLE_MAPS_JS_SAMPLES_KEY", dependencies = [],
         cmd = "cat $(location :src/index.ts) > $@; " +
               "$(location //rules:strip_region_tags_bin) $@; " +
               "tmp=$$(mktemp); " +
-              "sed '16 i import \"./style.css\";' $@ > $$tmp && cat $$tmp > $@; " +
+              "sed '16 i /* eslint-disable no-undef, @typescript-eslint/no-unused-vars, no-unused-vars */' $@ > $$tmp && cat $$tmp > $@; " +
+              "sed '17 i import \"./style.css\";' $@ > $$tmp && cat $$tmp > $@; " +
               "sed '/.*PRESERVE_COMMENT_ABOVE.*/d' $@ > $$tmp && cat $$tmp > $@; " +  # it isn't possible to have tsc preserve some comments
               "$(location //rules:prettier) --write $@; ",
         tools = ["//rules:prettier", "//rules:strip_region_tags_bin"],
