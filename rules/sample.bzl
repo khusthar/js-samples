@@ -30,10 +30,11 @@ def sample(name, YOUR_API_KEY = "GOOGLE_MAPS_JS_SAMPLES_KEY", dependencies = [],
         # loaders
         "@npm//babel-loader",
         "@npm//ts-loader",
-        "@npm//string-replace-loader",
         "@npm//css-loader",
+        "@npm//string-replace-loader",
         # plugins
         "@npm//html-webpack-plugin",
+        "@npm//html-replace-webpack-plugin",
         "@npm//mini-css-extract-plugin",
         # misc
         "@npm//typescript",

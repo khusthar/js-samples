@@ -69,6 +69,7 @@
     "eslint-plugin-prettier": "^3.3.1",
     "expect": "^26.6.2",
     "glob": "^7.1.6",
+    "html-replace-webpack-plugin": "^2.6.0",
     "html-webpack-plugin": "^5.3.1",
     "http-server": "^0.12.3",
     "jest": "^26.0.1",

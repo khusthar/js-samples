@@ -17,6 +17,7 @@
 require("dotenv").config({});
 
 const HtmlWebpackPlugin = require("html-webpack-plugin");
+const HtmlReplaceWebpackPlugin = require("html-replace-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 
 module.exports = (env) => {
@@ -25,10 +26,10 @@ module.exports = (env) => {
     module: {
       rules: [
         {
-          test: /\.[html|js]$/,
+          test: /\.(ts|js)$/,
           loader: "string-replace-loader",
           options: {
-            search: "YOUR_API_KEY",
+            search: /YOUR_API_KEY/g,
             replace: process.env.GOOGLE_MAPS_API_KEY,
           },
         },
@@ -58,15 +59,25 @@ module.exports = (env) => {
       filename: "index.js",
       libraryTarget: "window",
     },
-    plugins: env.SKIP_HTML ? [] : [
-      new HtmlWebpackPlugin({
-        template: "src/index.html",
-        inject: false,
-      }),
-      new MiniCssExtractPlugin({
-        filename: "style.css",
-      }),
-    ],
+    plugins: [].concat(
+      env.SKIP_HTML
+        ? []
+        : [
+            new HtmlWebpackPlugin({
+              template: "src/index.html",
+              inject: false,
+            }),
+            new HtmlReplaceWebpackPlugin([
+              {
+                pattern: /YOUR_API_KEY/g,
+                replacement: process.env.GOOGLE_MAPS_API_KEY,
+              },
+            ]),
+            new MiniCssExtractPlugin({
+              filename: "style.css",
+            }),
+          ]
+    ),
     devServer: {
       liveReload: true,
       host: "0.0.0.0",

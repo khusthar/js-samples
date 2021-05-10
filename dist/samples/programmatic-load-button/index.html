@@ -63,12 +63,12 @@
         e.r(t), e.d(t, { map: () => o });
         const n = { lat: 41.90476224706472, lng: 12.49822074385094 },
           a = new google.maps.plugins.loader.Loader({
-            apiKey: "AIzaSyBIwzALxUPNbatRBj3Xi1Uhp0fFzwWNBkE",
+            apiKey: "undefined",
             version: "weekly",
           });
         document.addEventListener("DOMContentLoaded", () => {
           const e = document.getElementById("wrapper");
-          (e.style.backgroundImage = `url(https://maps.googleapis.com/maps/api/staticmap?center=${n.lat},${n.lng}&zoom=14&scale=2&size=${e.clientWidth}x${e.clientHeight}&key=AIzaSyBIwzALxUPNbatRBj3Xi1Uhp0fFzwWNBkE)`),
+          (e.style.backgroundImage = `url(https://maps.googleapis.com/maps/api/staticmap?center=${n.lat},${n.lng}&zoom=14&scale=2&size=${e.clientWidth}x${e.clientHeight}&key=undefined)`),
             e.addEventListener("click", () => {
               e.remove(),
                 a.load().then(() => {
@@ -80,7 +80,7 @@
             });
         });
         var r = window;
-        for (var l in t) r[l] = t[l];
+        for (var d in t) r[d] = t[d];
         t.__esModule && Object.defineProperty(r, "__esModule", { value: !0 });
       })();
     </script>
