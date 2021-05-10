@@ -81,6 +81,7 @@ ESLINT_DATA = [
 eslint_test(
     name = "eslint",
     args = [
+        "--ignore-pattern webpack.config.js",
         "samples/**/*.ts",
         "samples/**/*.js",
     ],
@@ -94,6 +95,7 @@ eslint(
     name = "eslint-fix",
     args = [
         "samples/**/*.ts",
+        "--ignore-pattern webpack.config.js",
         "--fix",
     ],
     data = ESLINT_DATA + [

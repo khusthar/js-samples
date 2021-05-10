@@ -155,9 +155,9 @@ function renderCards(stores: Store[]): void {
           cardBody.innerHTML += `<h2 class="mdc-typography--body2">${travelDistanceText}, ${travelDurationText}</h2>`;
         }
 
-        (card.querySelector(
-          ".mdc-card__primary-action"
-        ) as HTMLElement).addEventListener("click", () => {
+        (
+          card.querySelector(".mdc-card__primary-action") as HTMLElement
+        ).addEventListener("click", () => {
           map.panTo(location);
         });
 
