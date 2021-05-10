@@ -20,7 +20,7 @@ def sample(name, YOUR_API_KEY = "GOOGLE_MAPS_JS_SAMPLES_KEY", dependencies = [],
       dependencies: third party dependencies
       devDependencies: third party dependencies
     """
-    has_es6_import = (len(dependencies) or len(devDependencies) > 1)
+    has_runtime_dependency = (len(dependencies) > 0)
 
     js_dependencies = ["@npm//{}".format(package) for package in dependencies] + ["@npm//{}".format(package) for package in devDependencies]
 
@@ -143,7 +143,7 @@ def sample(name, YOUR_API_KEY = "GOOGLE_MAPS_JS_SAMPLES_KEY", dependencies = [],
         )
 
     ## jsfiddle output
-    if not has_es6_import:
+    if not has_runtime_dependency:
         nunjucks(
             name = "_jsfiddle_html",
             template = ":src/index.njk",
@@ -197,7 +197,7 @@ def sample(name, YOUR_API_KEY = "GOOGLE_MAPS_JS_SAMPLES_KEY", dependencies = [],
         mode = "sample",
     )
 
-    if not has_es6_import:
+    if not has_runtime_dependency:
         native.genrule(
             name = "inline_html",
             srcs = [
@@ -432,7 +432,7 @@ def sample(name, YOUR_API_KEY = "GOOGLE_MAPS_JS_SAMPLES_KEY", dependencies = [],
         ":index.js",
     ]
 
-    if not has_es6_import:
+    if not has_runtime_dependency:
         html_output_files += [
             ":jsfiddle.html",
             ":inline.html",  # for developers.google.com *all* tab
