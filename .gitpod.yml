@@ -1,6 +1,3 @@
-ports:
-  - port: 8080
-    onOpen: open-preview
 tasks:
   - init: npm i
-    command: npm start --public "$(gp url 8080 | sed 's+https://++'):443"
+    command: npm start -- --public "$(gp url 8080 | sed 's+https://++'):443"
