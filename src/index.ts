@@ -17,75 +17,56 @@
 import "./style.css";
 
 function initMap(): void {
+  const directionsRenderer = new google.maps.DirectionsRenderer();
+  const directionsService = new google.maps.DirectionsService();
   const map = new google.maps.Map(
     document.getElementById("map") as HTMLElement,
     {
-      zoom: 4,
-      center: { lat: -24.345, lng: 134.46 }, // Australia.
+      zoom: 7,
+      center: { lat: 41.85, lng: -87.65 },
     }
   );
+  directionsRenderer.setMap(map);
+  directionsRenderer.setPanel(
+    document.getElementById("right-panel") as HTMLElement
+  );
 
-  const directionsService = new google.maps.DirectionsService();
-  const directionsRenderer = new google.maps.DirectionsRenderer({
-    draggable: true,
-    map,
-    panel: document.getElementById("right-panel") as HTMLElement,
-  });
+  const control = document.getElementById("floating-panel") as HTMLElement;
+  control.style.display = "block";
+  map.controls[google.maps.ControlPosition.TOP_CENTER].push(control);
 
-  directionsRenderer.addListener("directions_changed", () => {
-    computeTotalDistance(directionsRenderer.getDirections()!);
-  });
-
-  displayRoute(
-    "Perth, WA",
-    "Sydney, NSW",
-    directionsService,
-    directionsRenderer
+  const onChangeHandler = function () {
+    calculateAndDisplayRoute(directionsService, directionsRenderer);
+  };
+  (document.getElementById("start") as HTMLElement).addEventListener(
+    "change",
+    onChangeHandler
+  );
+  (document.getElementById("end") as HTMLElement).addEventListener(
+    "change",
+    onChangeHandler
   );
 }
 
-function displayRoute(
-  origin: string,
-  destination: string,
-  service: google.maps.DirectionsService,
-  display: google.maps.DirectionsRenderer
+function calculateAndDisplayRoute(
+  directionsService: google.maps.DirectionsService,
+  directionsRenderer: google.maps.DirectionsRenderer
 ) {
-  service.route(
+  const start = (document.getElementById("start") as HTMLInputElement).value;
+  const end = (document.getElementById("end") as HTMLInputElement).value;
+  directionsService.route(
     {
-      origin: origin,
-      destination: destination,
-      waypoints: [
-        { location: "Adelaide, SA" },
-        { location: "Broken Hill, NSW" },
-      ],
+      origin: start,
+      destination: end,
       travelMode: google.maps.TravelMode.DRIVING,
-      avoidTolls: true,
     },
-    (
-      result: google.maps.DirectionsResult | null,
-      status: google.maps.DirectionsStatus
-    ) => {
-      if (status === "OK" && result) {
-        display.setDirections(result);
+    (response, status) => {
+      if (status === "OK") {
+        directionsRenderer.setDirections(response);
       } else {
-        alert("Could not display directions due to: " + status);
+        window.alert("Directions request failed due to " + status);
       }
     }
   );
-}
-
-function computeTotalDistance(result: google.maps.DirectionsResult) {
-  let total = 0;
-  const myroute = result.routes[0];
-
-  if (!myroute) {
-    return;
-  }
-
-  for (let i = 0; i < myroute.legs.length; i++) {
-    total += myroute.legs[i]!.distance!.value;
-  }
-  total = total / 1000;
-  (document.getElementById("total") as HTMLElement).innerHTML = total + " km";
 }
 export { initMap };
