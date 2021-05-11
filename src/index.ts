@@ -26,39 +26,21 @@ function initMap(): void {
 
   // Load GeoJSON.
   map.data.loadGeoJson(
-    "https://storage.googleapis.com/mapsdevsite/json/google.json"
+    "https://storage.googleapis.com/maps-devrel/google.json"
   );
 
-  // Color each letter gray. Change the color when the isColorful property
-  // is set to true.
+  // Add some style.
   map.data.setStyle((feature) => {
-    let color = "gray";
-
-    if (feature.getProperty("isColorful")) {
-      color = feature.getProperty("color");
-    }
-    return /** @type {!google.maps.Data.StyleOptions} */ {
-      fillColor: color,
-      strokeColor: color,
-      strokeWeight: 2,
+    return /** @type {google.maps.Data.StyleOptions} */ {
+      fillColor: feature.getProperty("color"),
+      strokeWeight: 1,
     };
   });
 
-  // When the user clicks, set 'isColorful', changing the color of the letters.
-  map.data.addListener("click", (event) => {
-    event.feature.setProperty("isColorful", true);
-  });
-
-  // When the user hovers, tempt them to click by outlining the letters.
-  // Call revertStyle() to remove all overrides. This will use the style rules
-  // defined in the function passed to setStyle()
+  // Set mouseover event for each feature.
   map.data.addListener("mouseover", (event) => {
-    map.data.revertStyle();
-    map.data.overrideStyle(event.feature, { strokeWeight: 8 });
-  });
-
-  map.data.addListener("mouseout", (event) => {
-    map.data.revertStyle();
+    (document.getElementById("info-box") as HTMLElement).textContent =
+      event.feature.getProperty("letter");
   });
 }
 export { initMap };
