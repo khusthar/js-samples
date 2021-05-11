@@ -59,6 +59,7 @@ async function main(argv) {
     scripts: {
       build: "webpack --config ./webpack.config.js --mode production",
       start: "webpack serve --config  ./webpack.config.js --mode development",
+      dev: "webpack serve --config  ./webpack.config.js --mode development",
     },
   };
 
