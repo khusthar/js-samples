@@ -16,49 +16,143 @@
 /* eslint-disable no-undef, @typescript-eslint/no-unused-vars, no-unused-vars */
 import "./style.css";
 
-/* eslint-disable no-undef */
-// Initialize and add the map
-function initMap(): void {
+function initialize() {
+  const mapOptions = {
+    zoom: 3,
+    center: new google.maps.LatLng(0, -180),
+    mapTypeId: "terrain",
+  };
+
   const map = new google.maps.Map(
     document.getElementById("map") as HTMLElement,
-    {
-      center: { lat: 40, lng: -110 },
-      zoom: 4,
-    }
+    mapOptions
   );
 
-  // @ts-ignore TODO(jpoehnelt) fix deckgl typings
-  const deckOverlay = new deck.GoogleMapsOverlay({
-    layers: [
-      // @ts-ignore TODO(jpoehnelt) fix deckgl typings
-      new deck.GeoJsonLayer({
-        id: "earthquakes",
-        data: "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_month.geojson",
-        filled: true,
-        pointRadiusMinPixels: 2,
-        pointRadiusMaxPixels: 200,
-        opacity: 0.4,
-        pointRadiusScale: 0.3,
-        getRadius: (f: any) => Math.pow(10, f.properties.mag),
-        getFillColor: [255, 70, 30, 180],
-        autoHighlight: true,
-        transitions: {
-          getRadius: {
-            type: "spring",
-            stiffness: 0.1,
-            damping: 0.15,
-            enter: (_) => [0], // grow from size 0,
-            duration: 10000,
-          },
-        },
-        onDataLoad: (_) => {
-          // @ts-ignore defined in include
-          progress.done(); // hides progress bar
-        },
-      }),
-    ],
+  const flightPlanCoordinates = [
+    new google.maps.LatLng(37.772323, -122.214897),
+    new google.maps.LatLng(21.291982, -157.821856),
+    new google.maps.LatLng(-18.142599, 178.431),
+    new google.maps.LatLng(-27.46758, 153.027892),
+  ];
+
+  const flightPath = new google.maps.Polyline({
+    path: flightPlanCoordinates,
+    editable: true,
+    strokeColor: "#FF0000",
+    strokeOpacity: 1.0,
+    strokeWeight: 2,
+    map: map,
   });
 
-  deckOverlay.setMap(map);
+  /**
+   * A menu that lets a user delete a selected vertex of a path.
+   */
+  class DeleteMenu extends google.maps.OverlayView {
+    private div_: HTMLDivElement;
+    private divListener_?: google.maps.MapsEventListener;
+
+    constructor() {
+      super();
+      this.div_ = document.createElement("div");
+      this.div_.className = "delete-menu";
+      this.div_.innerHTML = "Delete";
+
+      const menu = this;
+      google.maps.event.addDomListener(this.div_, "click", () => {
+        menu.removeVertex();
+      });
+    }
+
+    onAdd() {
+      const deleteMenu = this;
+      const map = this.getMap() as google.maps.Map;
+      this.getPanes()!.floatPane.appendChild(this.div_);
+
+      // mousedown anywhere on the map except on the menu div will close the
+      // menu.
+      this.divListener_ = google.maps.event.addDomListener(
+        map.getDiv(),
+        "mousedown",
+        (e: Event) => {
+          if (e.target != deleteMenu.div_) {
+            deleteMenu.close();
+          }
+        },
+        true
+      );
+    }
+
+    onRemove() {
+      if (this.divListener_) {
+        google.maps.event.removeListener(this.divListener_);
+      }
+
+      (this.div_.parentNode as HTMLElement).removeChild(this.div_);
+
+      // clean up
+      this.set("position", null);
+      this.set("path", null);
+      this.set("vertex", null);
+    }
+
+    close() {
+      this.setMap(null);
+    }
+
+    draw() {
+      const position = this.get("position");
+      const projection = this.getProjection();
+
+      if (!position || !projection) {
+        return;
+      }
+
+      const point = projection.fromLatLngToDivPixel(position)!;
+      this.div_.style.top = point.y + "px";
+      this.div_.style.left = point.x + "px";
+    }
+
+    /**
+     * Opens the menu at a vertex of a given path.
+     */
+    open(
+      map: google.maps.Map,
+      path: google.maps.MVCArray<google.maps.LatLng>,
+      vertex: number
+    ) {
+      this.set("position", path.getAt(vertex));
+      this.set("path", path);
+      this.set("vertex", vertex);
+      this.setMap(map);
+      this.draw();
+    }
+
+    /**
+     * Deletes the vertex from the path.
+     */
+    removeVertex() {
+      const path = this.get("path");
+      const vertex = this.get("vertex");
+
+      if (!path || vertex == undefined) {
+        this.close();
+        return;
+      }
+
+      path.removeAt(vertex);
+      this.close();
+    }
+  }
+
+  const deleteMenu = new DeleteMenu();
+
+  google.maps.event.addListener(flightPath, "contextmenu", (e: any) => {
+    // Check if click was on a vertex control point
+    if (e.vertex == undefined) {
+      return;
+    }
+    deleteMenu.open(map, flightPath.getPath(), e.vertex);
+  });
 }
-export { initMap };
+
+export { initialize };
