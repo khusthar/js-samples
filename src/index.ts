@@ -15,47 +15,20 @@
  */
 /* eslint-disable no-undef, @typescript-eslint/no-unused-vars, no-unused-vars */
 import "./style.css";
-let map, overview;
 
-const OVERVIEW_DIFFERENCE = 5;
-const OVERVIEW_MIN_ZOOM = 3;
-const OVERVIEW_MAX_ZOOM = 10;
-
+/**
+ * This sample sets the gesture handling mode to 'cooperative',
+ * which means that on a mobile device, the user must swipe with one
+ * finger to scroll the page and two fingers to pan the map.
+ */
 function initMap(): void {
-  const mapOptions = {
-    center: { lat: 50, lng: 8 },
-    zoom: 7,
-  };
+  const center = { lat: -25.363, lng: 131.044 };
+  const zoom = 4;
 
-  // instantiate the primary map
-  map = new google.maps.Map(document.getElementById("map") as HTMLElement, {
-    ...mapOptions,
-  });
-
-  // instantiate the overview map without controls
-  overview = new google.maps.Map(
-    document.getElementById("overview") as HTMLElement,
-    {
-      ...mapOptions,
-      disableDefaultUI: true,
-      gestureHandling: "none",
-      zoomControl: false,
-    }
-  );
-
-  function clamp(num, min, max) {
-    return Math.min(Math.max(num, min), max);
-  }
-
-  map.addListener("bounds_changed", () => {
-    overview.setCenter(map.getCenter()!);
-    overview.setZoom(
-      clamp(
-        map.getZoom()! - OVERVIEW_DIFFERENCE,
-        OVERVIEW_MIN_ZOOM,
-        OVERVIEW_MAX_ZOOM
-      )
-    );
+  new google.maps.Map(document.getElementById("map")!, {
+    zoom,
+    center,
+    gestureHandling: "cooperative",
   });
 }
 export { initMap };
