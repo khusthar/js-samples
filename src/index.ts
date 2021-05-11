@@ -28,7 +28,6 @@ function initMap(): void {
   new google.maps.Map(document.getElementById("map")!, {
     zoom,
     center,
-    gestureHandling: "cooperative",
   });
 }
 export { initMap };
