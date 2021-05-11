@@ -20,66 +20,56 @@ function initMap(): void {
   const map = new google.maps.Map(
     document.getElementById("map") as HTMLElement,
     {
-      center: { lat: 0, lng: 0 },
-      zoom: 1,
-      streetViewControl: false,
-      mapTypeControlOptions: {
-        mapTypeIds: ["moon"],
-      },
+      zoom: 18,
+      center: { lat: 37.783, lng: -122.403 },
     }
   );
 
-  const moonMapType = new google.maps.ImageMapType({
-    getTileUrl: function (coord, zoom): string {
-      const normalizedCoord = getNormalizedCoord(coord, zoom);
+  const bounds: Record<number, [[number, number], [number, number]]> = {
+    17: [
+      [20969, 20970],
+      [50657, 50658],
+    ],
+    18: [
+      [41939, 41940],
+      [101315, 101317],
+    ],
+    19: [
+      [83878, 83881],
+      [202631, 202634],
+    ],
+    20: [
+      [167757, 167763],
+      [405263, 405269],
+    ],
+  };
 
-      if (!normalizedCoord) {
+  const imageMapType = new google.maps.ImageMapType({
+    getTileUrl: function (coord, zoom) {
+      if (
+        zoom < 17 ||
+        zoom > 20 ||
+        bounds[zoom][0][0] > coord.x ||
+        coord.x > bounds[zoom][0][1] ||
+        bounds[zoom][1][0] > coord.y ||
+        coord.y > bounds[zoom][1][1]
+      ) {
         return "";
       }
-      const bound = Math.pow(2, zoom);
-      return (
-        "https://mw1.google.com/mw-planetary/lunar/lunarmaps_v1/clem_bw" +
-        "/" +
-        zoom +
-        "/" +
-        normalizedCoord.x +
-        "/" +
-        (bound - normalizedCoord.y - 1) +
-        ".jpg"
-      );
+
+      return [
+        "https://www.gstatic.com/io2010maps/tiles/5/L2_",
+        zoom,
+        "_",
+        coord.x,
+        "_",
+        coord.y,
+        ".png",
+      ].join("");
     },
     tileSize: new google.maps.Size(256, 256),
-    maxZoom: 9,
-    minZoom: 0,
-    // @ts-ignore TODO(jpoehnelt) 'radius' does not exist in type 'ImageMapTypeOptions'
-    radius: 1738000,
-    name: "Moon",
   });
 
-  map.mapTypes.set("moon", moonMapType);
-  map.setMapTypeId("moon");
-}
-
-// Normalizes the coords that tiles repeat across the x axis (horizontally)
-// like the standard Google map tiles.
-function getNormalizedCoord(coord, zoom) {
-  const y = coord.y;
-  let x = coord.x;
-
-  // tile range in one direction range is dependent on zoom level
-  // 0 = 1 tile, 1 = 2 tiles, 2 = 4 tiles, 3 = 8 tiles, etc
-  const tileRange = 1 << zoom;
-
-  // don't repeat across y-axis (vertically)
-  if (y < 0 || y >= tileRange) {
-    return null;
-  }
-
-  // repeat across x-axis
-  if (x < 0 || x >= tileRange) {
-    x = ((x % tileRange) + tileRange) % tileRange;
-  }
-
-  return { x: x, y: y };
+  map.overlayMapTypes.push(imageMapType);
 }
 export { initMap };
