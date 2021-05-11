@@ -16,115 +16,49 @@
 /* eslint-disable no-undef, @typescript-eslint/no-unused-vars, no-unused-vars */
 import "./style.css";
 
-let map: google.maps.Map;
-
+/* eslint-disable no-undef */
+// Initialize and add the map
 function initMap(): void {
-  map = new google.maps.Map(document.getElementById("map") as HTMLElement, {
-    center: new google.maps.LatLng(-33.91722, 151.23064),
-    zoom: 16,
+  const map = new google.maps.Map(
+    document.getElementById("map") as HTMLElement,
+    {
+      center: { lat: 40, lng: -110 },
+      zoom: 4,
+    }
+  );
+
+  // @ts-ignore TODO(jpoehnelt) fix deckgl typings
+  const deckOverlay = new deck.GoogleMapsOverlay({
+    layers: [
+      // @ts-ignore TODO(jpoehnelt) fix deckgl typings
+      new deck.GeoJsonLayer({
+        id: "earthquakes",
+        data: "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_month.geojson",
+        filled: true,
+        pointRadiusMinPixels: 2,
+        pointRadiusMaxPixels: 200,
+        opacity: 0.4,
+        pointRadiusScale: 0.3,
+        getRadius: (f: any) => Math.pow(10, f.properties.mag),
+        getFillColor: [255, 70, 30, 180],
+        autoHighlight: true,
+        transitions: {
+          getRadius: {
+            type: "spring",
+            stiffness: 0.1,
+            damping: 0.15,
+            enter: (_) => [0], // grow from size 0,
+            duration: 10000,
+          },
+        },
+        onDataLoad: (_) => {
+          // @ts-ignore defined in include
+          progress.done(); // hides progress bar
+        },
+      }),
+    ],
   });
 
-  const iconBase =
-    "https://developers.google.com/maps/documentation/javascript/examples/full/images/";
-
-  const icons: Record<string, { icon: string }> = {
-    parking: {
-      icon: iconBase + "parking_lot_maps.png",
-    },
-    library: {
-      icon: iconBase + "library_maps.png",
-    },
-    info: {
-      icon: iconBase + "info-i_maps.png",
-    },
-  };
-
-  const features = [
-    {
-      position: new google.maps.LatLng(-33.91721, 151.2263),
-      type: "info",
-    },
-    {
-      position: new google.maps.LatLng(-33.91539, 151.2282),
-      type: "info",
-    },
-    {
-      position: new google.maps.LatLng(-33.91747, 151.22912),
-      type: "info",
-    },
-    {
-      position: new google.maps.LatLng(-33.9191, 151.22907),
-      type: "info",
-    },
-    {
-      position: new google.maps.LatLng(-33.91725, 151.23011),
-      type: "info",
-    },
-    {
-      position: new google.maps.LatLng(-33.91872, 151.23089),
-      type: "info",
-    },
-    {
-      position: new google.maps.LatLng(-33.91784, 151.23094),
-      type: "info",
-    },
-    {
-      position: new google.maps.LatLng(-33.91682, 151.23149),
-      type: "info",
-    },
-    {
-      position: new google.maps.LatLng(-33.9179, 151.23463),
-      type: "info",
-    },
-    {
-      position: new google.maps.LatLng(-33.91666, 151.23468),
-      type: "info",
-    },
-    {
-      position: new google.maps.LatLng(-33.916988, 151.23364),
-      type: "info",
-    },
-    {
-      position: new google.maps.LatLng(-33.91662347903106, 151.22879464019775),
-      type: "parking",
-    },
-    {
-      position: new google.maps.LatLng(-33.916365282092855, 151.22937399734496),
-      type: "parking",
-    },
-    {
-      position: new google.maps.LatLng(-33.91665018901448, 151.2282474695587),
-      type: "parking",
-    },
-    {
-      position: new google.maps.LatLng(-33.919543720969806, 151.23112279762267),
-      type: "parking",
-    },
-    {
-      position: new google.maps.LatLng(-33.91608037421864, 151.23288232673644),
-      type: "parking",
-    },
-    {
-      position: new google.maps.LatLng(-33.91851096391805, 151.2344058214569),
-      type: "parking",
-    },
-    {
-      position: new google.maps.LatLng(-33.91818154739766, 151.2346203981781),
-      type: "parking",
-    },
-    {
-      position: new google.maps.LatLng(-33.91727341958453, 151.23348314155578),
-      type: "library",
-    },
-  ];
-
-  // Create markers.
-  for (let i = 0; i < features.length; i++) {
-    const marker = new google.maps.Marker({
-      position: features[i].position,
-      icon: icons[features[i].type].icon,
-      map: map,
-    });
-  }
+  deckOverlay.setMap(map);
 }
 export { initMap };
