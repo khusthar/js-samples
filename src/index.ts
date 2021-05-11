@@ -16,146 +16,59 @@
 /* eslint-disable no-undef, @typescript-eslint/no-unused-vars, no-unused-vars */
 import "./style.css";
 
-let autocompleteService: google.maps.places.AutocompleteService;
-let placesService: google.maps.places.PlacesService;
-
-let requestElement: HTMLPreElement;
-let responseElement: HTMLPreElement;
-let inputElement: HTMLInputElement;
-let biasToMapSwitchElement: HTMLInputElement;
-let autocompleteTypeElement: HTMLInputElement;
+// This example requires the Places library. Include the libraries=places
+// parameter when you first load the API. For example:
+// <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=places">
 
 let map: google.maps.Map;
+let service: google.maps.places.PlacesService;
+let infowindow: google.maps.InfoWindow;
 
-const debounce = <F extends (...args: any[]) => void>(delay: number, fn: F) => {
-  let timeout = 0;
+function initMap(): void {
+  const sydney = new google.maps.LatLng(-33.867, 151.195);
 
-  const debounced = (...args: any[]) => {
-    window.clearTimeout(timeout);
-    timeout = window.setTimeout(() => fn(...args), delay);
+  infowindow = new google.maps.InfoWindow();
+
+  map = new google.maps.Map(document.getElementById("map") as HTMLElement, {
+    center: sydney,
+    zoom: 15,
+  });
+
+  const request = {
+    query: "Museum of Contemporary Art Australia",
+    fields: ["name", "geometry"],
   };
 
-  return debounced as (...args: Parameters<F>) => void;
-};
+  service = new google.maps.places.PlacesService(map);
 
-const initialize = (): void => {
-  map = new google.maps.Map(document.getElementById("map")!, {
-    center: { lat: 47.609414458375674, lng: -122.33897030353548 },
-    zoom: 12,
-  });
+  service.findPlaceFromQuery(
+    request,
+    (
+      results: google.maps.places.PlaceResult[] | null,
+      status: google.maps.places.PlacesServiceStatus
+    ) => {
+      if (status === google.maps.places.PlacesServiceStatus.OK && results) {
+        for (let i = 0; i < results.length; i++) {
+          createMarker(results[i]);
+        }
 
-  autocompleteService = new google.maps.places.AutocompleteService();
-  placesService = new google.maps.places.PlacesService(map);
-
-  inputElement = document.getElementById("input") as HTMLInputElement;
-  requestElement = document.getElementById("request") as HTMLPreElement;
-  responseElement = document.getElementById("response") as HTMLPreElement;
-  biasToMapSwitchElement = document.getElementById(
-    "bias-to-map"
-  ) as HTMLInputElement;
-  autocompleteTypeElement = document.getElementById(
-    "autocomplete-type"
-  ) as HTMLInputElement;
-
-  const autocompleteTypeListElement = document.getElementById(
-    "autocomplete-type-list"
-  ) as HTMLUListElement;
-  ["", "establishment", "geocode", "address", "(cities)", "(regions)"].forEach(
-    (type) => {
-      const item = document.createElement("LI");
-      item.classList.add("mdc-list-item");
-      item.setAttribute("data-value", type);
-
-      const itemText = document.createElement("SPAN") as HTMLSpanElement;
-      itemText.classList.add("mdc-list-item__text");
-      itemText.innerText = type;
-
-      item.appendChild(itemText);
-      autocompleteTypeListElement.appendChild(item);
+        map.setCenter(results[0].geometry!.location!);
+      }
     }
   );
+}
 
-  inputElement.addEventListener("input", inputChangeCallback);
-  biasToMapSwitchElement.addEventListener("change", inputChangeCallback);
-  map.addListener("bounds_changed", () => {
-    if (biasToMapSwitchElement.checked) {
-      inputChangeCallback();
-    }
+function createMarker(place: google.maps.places.PlaceResult) {
+  if (!place.geometry || !place.geometry.location) return;
+
+  const marker = new google.maps.Marker({
+    map,
+    position: place.geometry.location,
   });
 
-  biasToMapSwitchElement.checked = true;
-
-  initializeMaterialDesignComponents();
-  inputChangeCallback();
-};
-
-const inputChangeCallback = debounce(100, () => {
-  const request: google.maps.places.AutocompletionRequest = {
-    input: inputElement.value,
-  };
-
-  const bounds = map.getBounds();
-
-  if (biasToMapSwitchElement.checked && bounds) {
-    request.bounds = bounds;
-  }
-
-  const selectedAutocompleteType = document.querySelector(
-    "#autocomplete-type-list > .mdc-list-item--selected"
-  );
-
-  if (
-    selectedAutocompleteType &&
-    selectedAutocompleteType.getAttribute("data-value") !== ""
-  ) {
-    request.types = [selectedAutocompleteType.getAttribute("data-value")!];
-  }
-
-  requestElement.innerText = JSON.stringify(request, null, 2);
-
-  if (!inputElement.value) {
-    return;
-  }
-
-  autocompleteService.getPlacePredictions(request, predictionsCallback);
-});
-
-const predictionsCallback = (
-  results: google.maps.places.AutocompletePrediction[] | null,
-  status: google.maps.places.PlacesServiceStatus
-) => {
-  responseElement.innerText = JSON.stringify({ results, status }, null, 2);
-};
-
-const initializeMaterialDesignComponents = () => {
-  document.querySelectorAll(".mdc-text-field").forEach(
-    (el) =>
-      // @ts-ignore
-      new mdc.textField.MDCTextField(el)
-  );
-
-  document
-    .querySelectorAll(".mdc-switch")
-    // @ts-ignore
-    .forEach((el) => new mdc.switchControl.MDCSwitch(el));
-
-  document.querySelectorAll(".mdc-select").forEach((el) =>
-    // @ts-ignore
-    new mdc.select.MDCSelect(el).listen("MDCSelect:change", inputChangeCallback)
-  );
-
-  // @ts-ignore
-  const tabBar = new mdc.tabBar.MDCTabBar(
-    document.querySelector(".mdc-tab-bar")
-  );
-  const contentElements = document.querySelectorAll(".tab-content");
-
-  tabBar.listen("MDCTabBar:activated", (event) => {
-    document
-      .querySelector(".tab-content--active")!
-      .classList.remove("tab-content--active");
-    contentElements[event.detail.index].classList.add("tab-content--active");
+  google.maps.event.addListener(marker, "click", () => {
+    infowindow.setContent(place.name || "");
+    infowindow.open(map);
   });
-};
-
-export { initialize };
+}
+export { initMap };
