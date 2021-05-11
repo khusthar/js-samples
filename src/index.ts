@@ -15,55 +15,47 @@
  */
 /* eslint-disable no-undef, @typescript-eslint/no-unused-vars, no-unused-vars */
 import "./style.css";
+let map, overview;
 
-// This example displays a marker at the center of Australia.
-// When the user clicks the marker, an info window opens.
-// The maximum width of the info window is set to 200 pixels.
+const OVERVIEW_DIFFERENCE = 5;
+const OVERVIEW_MIN_ZOOM = 3;
+const OVERVIEW_MAX_ZOOM = 10;
 
 function initMap(): void {
-  const uluru = { lat: -25.363, lng: 131.044 };
-  const map = new google.maps.Map(
-    document.getElementById("map") as HTMLElement,
+  const mapOptions = {
+    center: { lat: 50, lng: 8 },
+    zoom: 7,
+  };
+
+  // instantiate the primary map
+  map = new google.maps.Map(document.getElementById("map") as HTMLElement, {
+    ...mapOptions,
+  });
+
+  // instantiate the overview map without controls
+  overview = new google.maps.Map(
+    document.getElementById("overview") as HTMLElement,
     {
-      zoom: 4,
-      center: uluru,
+      ...mapOptions,
+      disableDefaultUI: true,
+      gestureHandling: "none",
+      zoomControl: false,
     }
   );
 
-  const contentString =
-    '<div id="content">' +
-    '<div id="siteNotice">' +
-    "</div>" +
-    '<h1 id="firstHeading" class="firstHeading">Uluru</h1>' +
-    '<div id="bodyContent">' +
-    "<p><b>Uluru</b>, also referred to as <b>Ayers Rock</b>, is a large " +
-    "sandstone rock formation in the southern part of the " +
-    "Northern Territory, central Australia. It lies 335&#160;km (208&#160;mi) " +
-    "south west of the nearest large town, Alice Springs; 450&#160;km " +
-    "(280&#160;mi) by road. Kata Tjuta and Uluru are the two major " +
-    "features of the Uluru - Kata Tjuta National Park. Uluru is " +
-    "sacred to the Pitjantjatjara and Yankunytjatjara, the " +
-    "Aboriginal people of the area. It has many springs, waterholes, " +
-    "rock caves and ancient paintings. Uluru is listed as a World " +
-    "Heritage Site.</p>" +
-    '<p>Attribution: Uluru, <a href="https://en.wikipedia.org/w/index.php?title=Uluru&oldid=297882194">' +
-    "https://en.wikipedia.org/w/index.php?title=Uluru</a> " +
-    "(last visited June 22, 2009).</p>" +
-    "</div>" +
-    "</div>";
+  function clamp(num, min, max) {
+    return Math.min(Math.max(num, min), max);
+  }
 
-  const infowindow = new google.maps.InfoWindow({
-    content: contentString,
-    maxWidth: 200,
-  });
-
-  const marker = new google.maps.Marker({
-    position: uluru,
-    map,
-    title: "Uluru (Ayers Rock)",
-  });
-  marker.addListener("click", () => {
-    infowindow.open(map, marker);
+  map.addListener("bounds_changed", () => {
+    overview.setCenter(map.getCenter()!);
+    overview.setZoom(
+      clamp(
+        map.getZoom()! - OVERVIEW_DIFFERENCE,
+        OVERVIEW_MIN_ZOOM,
+        OVERVIEW_MAX_ZOOM
+      )
+    );
   });
 }
 export { initMap };
