@@ -21,8 +21,8 @@ let map: google.maps.Map;
 function initMap(): void {
   map = new google.maps.Map(document.getElementById("map") as HTMLElement, {
     zoom: 2,
-    center: { lat: -33.865427, lng: 151.196123 },
-    mapTypeId: "terrain",
+    center: new google.maps.LatLng(2.8, -187.3),
+    mapTypeId: google.maps.MapTypeId.TERRAIN,
   });
 
   // Create a <script> tag and set the USGS URL as the source.
@@ -35,18 +35,24 @@ function initMap(): void {
   document.getElementsByTagName("head")[0].appendChild(script);
 }
 
-function eqfeed_callback(results: any) {
-  const heatmapData: google.maps.LatLng[] = [];
+const eqfeed_callback = function (results: any) {
+  // TODO fix @types/googlemaps
+  const heatmapData: any[] = [];
 
   for (let i = 0; i < results.features.length; i++) {
     const coords = results.features[i].geometry.coordinates;
     const latLng = new google.maps.LatLng(coords[1], coords[0]);
-    heatmapData.push(latLng);
+    const magnitude = results.features[i].properties.mag;
+    const weightedLoc = {
+      location: latLng,
+      weight: Math.pow(2, magnitude),
+    };
+    heatmapData.push(weightedLoc);
   }
   const heatmap = new google.maps.visualization.HeatmapLayer({
     data: heatmapData,
     dissipating: false,
     map: map,
   });
-}
+};
 export { initMap, eqfeed_callback };

@@ -1,5 +1,5 @@
 {
-  "name": "earthquake-heatmap",
+  "name": "earthquake-heatmap-weighted",
   "version": "1.0.0",
   "description": "Sample for Google Maps Platform JavaScript",
   "keywords": [
