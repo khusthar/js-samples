@@ -16,7 +16,7 @@
 /* eslint-disable no-undef, @typescript-eslint/no-unused-vars, no-unused-vars */
 import "./style.css";
 
-// This example creates a triangular polygon with a hole in it.
+// This example creates a simple polygon representing the Bermuda Triangle.
 
 function initMap(): void {
   const map = new google.maps.Map(
@@ -24,32 +24,25 @@ function initMap(): void {
     {
       zoom: 5,
       center: { lat: 24.886, lng: -70.268 },
+      mapTypeId: "terrain",
     }
   );
 
-  // Define the LatLng coordinates for the polygon's  outer path.
-  const outerCoords = [
+  // Define the LatLng coordinates for the polygon's path.
+  const triangleCoords = [
     { lat: 25.774, lng: -80.19 },
     { lat: 18.466, lng: -66.118 },
     { lat: 32.321, lng: -64.757 },
+    { lat: 25.774, lng: -80.19 },
   ];
 
-  // Define the LatLng coordinates for the polygon's inner path.
-  // Note that the points forming the inner path are wound in the
-  // opposite direction to those in the outer path, to form the hole.
-  const innerCoords = [
-    { lat: 28.745, lng: -70.579 },
-    { lat: 29.57, lng: -67.514 },
-    { lat: 27.339, lng: -66.668 },
-  ];
-
-  // Construct the polygon, including both paths.
+  // Construct the polygon.
   const bermudaTriangle = new google.maps.Polygon({
-    paths: [outerCoords, innerCoords],
-    strokeColor: "#FFC107",
+    paths: triangleCoords,
+    strokeColor: "#FF0000",
     strokeOpacity: 0.8,
     strokeWeight: 2,
-    fillColor: "#FFC107",
+    fillColor: "#FF0000",
     fillOpacity: 0.35,
   });
   bermudaTriangle.setMap(map);
