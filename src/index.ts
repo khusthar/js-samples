@@ -16,143 +16,130 @@
 /* eslint-disable no-undef, @typescript-eslint/no-unused-vars, no-unused-vars */
 import "./style.css";
 
-function initialize() {
-  const mapOptions = {
-    zoom: 3,
-    center: new google.maps.LatLng(0, -180),
-    mapTypeId: "terrain",
-  };
+function initMap(): void {
+  const markerArray: google.maps.Marker[] = [];
 
+  // Instantiate a directions service.
+  const directionsService = new google.maps.DirectionsService();
+
+  // Create a map and center it on Manhattan.
   const map = new google.maps.Map(
     document.getElementById("map") as HTMLElement,
-    mapOptions
+    {
+      zoom: 13,
+      center: { lat: 40.771, lng: -73.974 },
+    }
   );
 
-  const flightPlanCoordinates = [
-    new google.maps.LatLng(37.772323, -122.214897),
-    new google.maps.LatLng(21.291982, -157.821856),
-    new google.maps.LatLng(-18.142599, 178.431),
-    new google.maps.LatLng(-27.46758, 153.027892),
-  ];
+  // Create a renderer for directions and bind it to the map.
+  const directionsRenderer = new google.maps.DirectionsRenderer({ map: map });
 
-  const flightPath = new google.maps.Polyline({
-    path: flightPlanCoordinates,
-    editable: true,
-    strokeColor: "#FF0000",
-    strokeOpacity: 1.0,
-    strokeWeight: 2,
-    map: map,
-  });
+  // Instantiate an info window to hold step text.
+  const stepDisplay = new google.maps.InfoWindow();
 
-  /**
-   * A menu that lets a user delete a selected vertex of a path.
-   */
-  class DeleteMenu extends google.maps.OverlayView {
-    private div_: HTMLDivElement;
-    private divListener_?: google.maps.MapsEventListener;
+  // Display the route between the initial start and end selections.
+  calculateAndDisplayRoute(
+    directionsRenderer,
+    directionsService,
+    markerArray,
+    stepDisplay,
+    map
+  );
 
-    constructor() {
-      super();
-      this.div_ = document.createElement("div");
-      this.div_.className = "delete-menu";
-      this.div_.innerHTML = "Delete";
-
-      const menu = this;
-      google.maps.event.addDomListener(this.div_, "click", () => {
-        menu.removeVertex();
-      });
-    }
-
-    onAdd() {
-      const deleteMenu = this;
-      const map = this.getMap() as google.maps.Map;
-      this.getPanes()!.floatPane.appendChild(this.div_);
-
-      // mousedown anywhere on the map except on the menu div will close the
-      // menu.
-      this.divListener_ = google.maps.event.addDomListener(
-        map.getDiv(),
-        "mousedown",
-        (e: Event) => {
-          if (e.target != deleteMenu.div_) {
-            deleteMenu.close();
-          }
-        },
-        true
-      );
-    }
-
-    onRemove() {
-      if (this.divListener_) {
-        google.maps.event.removeListener(this.divListener_);
-      }
-
-      (this.div_.parentNode as HTMLElement).removeChild(this.div_);
-
-      // clean up
-      this.set("position", null);
-      this.set("path", null);
-      this.set("vertex", null);
-    }
-
-    close() {
-      this.setMap(null);
-    }
-
-    draw() {
-      const position = this.get("position");
-      const projection = this.getProjection();
-
-      if (!position || !projection) {
-        return;
-      }
-
-      const point = projection.fromLatLngToDivPixel(position)!;
-      this.div_.style.top = point.y + "px";
-      this.div_.style.left = point.x + "px";
-    }
-
-    /**
-     * Opens the menu at a vertex of a given path.
-     */
-    open(
-      map: google.maps.Map,
-      path: google.maps.MVCArray<google.maps.LatLng>,
-      vertex: number
-    ) {
-      this.set("position", path.getAt(vertex));
-      this.set("path", path);
-      this.set("vertex", vertex);
-      this.setMap(map);
-      this.draw();
-    }
-
-    /**
-     * Deletes the vertex from the path.
-     */
-    removeVertex() {
-      const path = this.get("path");
-      const vertex = this.get("vertex");
-
-      if (!path || vertex == undefined) {
-        this.close();
-        return;
-      }
-
-      path.removeAt(vertex);
-      this.close();
-    }
-  }
-
-  const deleteMenu = new DeleteMenu();
-
-  google.maps.event.addListener(flightPath, "contextmenu", (e: any) => {
-    // Check if click was on a vertex control point
-    if (e.vertex == undefined) {
-      return;
-    }
-    deleteMenu.open(map, flightPath.getPath(), e.vertex);
-  });
+  // Listen to change events from the start and end lists.
+  const onChangeHandler = function () {
+    calculateAndDisplayRoute(
+      directionsRenderer,
+      directionsService,
+      markerArray,
+      stepDisplay,
+      map
+    );
+  };
+  (document.getElementById("start") as HTMLElement).addEventListener(
+    "change",
+    onChangeHandler
+  );
+  (document.getElementById("end") as HTMLElement).addEventListener(
+    "change",
+    onChangeHandler
+  );
 }
 
-export { initialize };
+function calculateAndDisplayRoute(
+  directionsRenderer: google.maps.DirectionsRenderer,
+  directionsService: google.maps.DirectionsService,
+  markerArray: google.maps.Marker[],
+  stepDisplay: google.maps.InfoWindow,
+  map: google.maps.Map
+) {
+  // First, remove any existing markers from the map.
+  for (let i = 0; i < markerArray.length; i++) {
+    markerArray[i].setMap(null);
+  }
+
+  // Retrieve the start and end locations and create a DirectionsRequest using
+  // WALKING directions.
+  directionsService.route(
+    {
+      origin: (document.getElementById("start") as HTMLInputElement).value,
+      destination: (document.getElementById("end") as HTMLInputElement).value,
+      travelMode: google.maps.TravelMode.WALKING,
+    },
+    (
+      result: google.maps.DirectionsResult | null,
+      status: google.maps.DirectionsStatus
+    ) => {
+      // Route the directions and pass the response to a function to create
+      // markers for each step.
+      if (status === "OK" && result) {
+        (document.getElementById("warnings-panel") as HTMLElement).innerHTML =
+          "<b>" + result.routes[0].warnings + "</b>";
+        directionsRenderer.setDirections(result);
+        showSteps(result, markerArray, stepDisplay, map);
+      } else {
+        window.alert("Directions request failed due to " + status);
+      }
+    }
+  );
+}
+
+function showSteps(
+  directionResult: google.maps.DirectionsResult | null,
+  markerArray: google.maps.Marker[],
+  stepDisplay: google.maps.InfoWindow,
+  map: google.maps.Map
+) {
+  // For each step, place a marker, and add the text to the marker's infowindow.
+  // Also attach the marker to an array so we can keep track of it and remove it
+  // when calculating new routes.
+  const myRoute = directionResult!.routes[0]!.legs[0]!;
+
+  for (let i = 0; i < myRoute.steps.length; i++) {
+    const marker = (markerArray[i] =
+      markerArray[i] || new google.maps.Marker());
+    marker.setMap(map);
+    marker.setPosition(myRoute.steps[i].start_location);
+    attachInstructionText(
+      stepDisplay,
+      marker,
+      myRoute.steps[i].instructions,
+      map
+    );
+  }
+}
+
+function attachInstructionText(
+  stepDisplay: google.maps.InfoWindow,
+  marker: google.maps.Marker,
+  text: string,
+  map: google.maps.Map
+) {
+  google.maps.event.addListener(marker, "click", () => {
+    // Open an info window when the marker is clicked on, containing the text
+    // of the step.
+    stepDisplay.setContent(text);
+    stepDisplay.open(map, marker);
+  });
+}
+export { initMap };
