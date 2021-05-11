@@ -1,11 +1,11 @@
-# Run the `map-sync` sample in Google Cloud Shell
+# Run the `maptype-base` sample in Google Cloud Shell
 
 <walkthrough-tutorial-duration duration="10"/>
 
 ## Introduction
 
 This tutorial will walk through the process of running a web application from
-the `map-sync` sample using TypeScript, Babel, and Webpack.
+the `maptype-base` sample using TypeScript, Babel, and Webpack.
 
 For feedback related to this sample, please open a new issue on
 [GitHub](https://github.com/googlemaps/js-samples/issues).
