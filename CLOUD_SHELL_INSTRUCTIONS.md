@@ -1,11 +1,11 @@
-# Run the `overlay-simple` sample in Google Cloud Shell
+# Run the `overlay-symbol-animate` sample in Google Cloud Shell
 
 <walkthrough-tutorial-duration duration="10"/>
 
 ## Introduction
 
 This tutorial will walk through the process of running a web application from
-the `overlay-simple` sample using TypeScript, Babel, and Webpack.
+the `overlay-symbol-animate` sample using TypeScript, Babel, and Webpack.
 
 For feedback related to this sample, please open a new issue on
 [GitHub](https://github.com/googlemaps/js-samples/issues).
