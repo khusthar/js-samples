@@ -11,3 +11,9 @@ body {
   margin: 0;
   padding: 0;
 }
+
+#coords {
+  background-color: black;
+  color: white;
+  padding: 5px;
+}
