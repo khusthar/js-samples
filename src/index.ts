@@ -16,13 +16,20 @@
 /* eslint-disable no-undef, @typescript-eslint/no-unused-vars, no-unused-vars */
 import "./style.css";
 
+// You can set control options to change the default position or style of many
+// of the map controls.
+
 function initMap(): void {
   const map = new google.maps.Map(
     document.getElementById("map") as HTMLElement,
     {
       zoom: 4,
       center: { lat: -33, lng: 151 },
-      disableDefaultUI: true,
+      mapTypeControl: true,
+      mapTypeControlOptions: {
+        style: google.maps.MapTypeControlStyle.DROPDOWN_MENU,
+        mapTypeIds: ["roadmap", "terrain"],
+      },
     }
   );
 }
