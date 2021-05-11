@@ -17,133 +17,260 @@
 import "./style.css";
 
 let map: google.maps.Map;
+let localContextMapView;
 
-let infoWindow;
-let infoStorage;
-
-const districts = {
-  a: {
-    label: "1",
-    location: {
-      lat: -1.283975,
-      lng: 36.818797,
-    },
-    name: "Central",
-    description:
-      "The Central Business District is a hub of economic activity during the day and a destination for great food at night.",
+const styles: google.maps.MapTypeStyle[] = [
+  {
+    elementType: "geometry",
+    stylers: [
+      {
+        color: "#f5f5f5",
+      },
+    ],
   },
-  b: {
-    label: "2",
-    location: {
-      lat: -1.270955,
-      lng: 36.810857,
-    },
-    name: "Westlands",
-    description:
-      "With many high-end restaurants and a vibrant nightlife, Westlands attracts young professionals and their families. ",
+  {
+    elementType: "labels",
+    stylers: [
+      {
+        visibility: "off",
+      },
+    ],
   },
-  c: {
-    label: "3",
-    location: {
-      lat: -1.311868,
-      lng: 36.838624,
-    },
-    name: "South",
-    description:
-      "Known for high-rise apartment buildings, South B and South C are in high demand.",
+  {
+    elementType: "labels.icon",
+    stylers: [
+      {
+        visibility: "off",
+      },
+    ],
   },
-};
+  {
+    elementType: "labels.text.fill",
+    stylers: [
+      {
+        color: "#616161",
+      },
+    ],
+  },
+  {
+    elementType: "labels.text.stroke",
+    stylers: [
+      {
+        color: "#f5f5f5",
+      },
+    ],
+  },
+  {
+    featureType: "administrative.land_parcel",
+    stylers: [
+      {
+        visibility: "off",
+      },
+    ],
+  },
+  {
+    featureType: "administrative.land_parcel",
+    elementType: "labels.text.fill",
+    stylers: [
+      {
+        color: "#bdbdbd",
+      },
+    ],
+  },
+  {
+    featureType: "administrative.neighborhood",
+    stylers: [
+      {
+        visibility: "off",
+      },
+    ],
+  },
+  {
+    featureType: "poi",
+    elementType: "geometry",
+    stylers: [
+      {
+        color: "#eeeeee",
+      },
+    ],
+  },
+  {
+    featureType: "poi",
+    elementType: "labels.text.fill",
+    stylers: [
+      {
+        color: "#757575",
+      },
+    ],
+  },
+  {
+    featureType: "poi.park",
+    elementType: "geometry",
+    stylers: [
+      {
+        color: "#e5e5e5",
+      },
+    ],
+  },
+  {
+    featureType: "poi.park",
+    elementType: "labels.text.fill",
+    stylers: [
+      {
+        color: "#9e9e9e",
+      },
+    ],
+  },
+  {
+    featureType: "road",
+    elementType: "geometry",
+    stylers: [
+      {
+        color: "#ffffff",
+      },
+    ],
+  },
+  {
+    featureType: "road.arterial",
+    elementType: "labels.text.fill",
+    stylers: [
+      {
+        color: "#757575",
+      },
+    ],
+  },
+  {
+    featureType: "road.highway",
+    elementType: "geometry",
+    stylers: [
+      {
+        color: "#dadada",
+      },
+    ],
+  },
+  {
+    featureType: "road.highway",
+    elementType: "labels.text.fill",
+    stylers: [
+      {
+        color: "#616161",
+      },
+    ],
+  },
+  {
+    featureType: "road.local",
+    elementType: "labels.text.fill",
+    stylers: [
+      {
+        color: "#9e9e9e",
+      },
+    ],
+  },
+  {
+    featureType: "transit.line",
+    elementType: "geometry",
+    stylers: [
+      {
+        color: "#e5e5e5",
+      },
+    ],
+  },
+  {
+    featureType: "transit.station",
+    elementType: "geometry",
+    stylers: [
+      {
+        color: "#eeeeee",
+      },
+    ],
+  },
+  {
+    featureType: "water",
+    elementType: "geometry",
+    stylers: [
+      {
+        color: "#c9c9c9",
+      },
+    ],
+  },
+  {
+    featureType: "water",
+    elementType: "labels.text.fill",
+    stylers: [
+      {
+        color: "#9e9e9e",
+      },
+    ],
+  },
+];
 
 function initMap() {
-  const localContextMapView = new google.maps.localContext.LocalContextMapView({
+  localContextMapView = new google.maps.localContext.LocalContextMapView({
     element: document.getElementById("map"),
     placeTypePreferences: [
-      { type: "restaurant" },
-      { type: "tourist_attraction" },
+      { type: "bakery", weight: 1 },
+      { type: "bank", weight: 1 },
+      { type: "cafe", weight: 2 },
+      { type: "department_store", weight: 1 },
+      { type: "drugstore", weight: 1 },
+      { type: "park", weight: 3 },
+      { type: "restaurant", weight: 2 },
+      { type: "primary_school", weight: 3 },
+      { type: "secondary_school", weight: 3 },
+      { type: "supermarket", weight: 2 },
     ],
-    maxPlaceCount: 12,
+    maxPlaceCount: 24,
   });
 
   map = localContextMapView.map!;
 
   map.setOptions({
-    center: districts["a"].location,
-    zoom: 13,
+    center: { lat: 51.507307, lng: -0.08114 },
+    zoom: 14,
+    styles,
   });
 
-  // Add 3 custom markers that open InfoWindows on click
-  for (const key in districts) {
-    const district = districts[key];
-    const marker = new google.maps.Marker({
-      label: district.label,
-      position: district.location,
+  // Build and add the Autocomplete search bar
+  const input = <HTMLInputElement>document.getElementById("input");
+  const options = {
+    types: ["address"],
+    componentRestrictions: {
+      country: "us",
+    },
+  };
+  const autocomplete = new google.maps.places.Autocomplete(input, options);
+  autocomplete.setFields(["address_components", "geometry", "name"]);
+
+  autocomplete.addListener("place_changed", () => {
+    const place = autocomplete.getPlace();
+
+    if (!place || !place.geometry) {
+      // User entered the name of a Place that was not suggested and
+      // pressed the Enter key, or the Place Details request failed.
+      window.alert("No address available for that input.");
+      return;
+    }
+
+    // Recenter the map to the selected address
+    map.setOptions({
+      center: place.geometry!.location,
+      zoom: 14,
+    });
+    // Update the localContext directionsOptions origin
+    localContextMapView.directionsOptions = {
+      origin: place.geometry!.location,
+    };
+
+    new google.maps.Marker({
+      position: place.geometry!.location,
       map: map,
+      icon: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAQAAABKfvVzAAAAbUlEQVR4Ae3LoQ2AMAAF0TMYPJoV2IApGIJtmIMtmIAVqutraj6IiqZpmyYoCO/08R7bXbOOHSF2Ohr0HCh00EPdwImiTgYqRgxKMowUTFiUyTKRMeNQIcdMYsGjSp6FyIoaWkmoUuLxEPzDh1xIaLFFuTyHMgAAAABJRU5ErkJggg==",
       zIndex: 30,
     });
-    marker.addListener("click", () => {
-      // Close any open details or existing InfoWindows
-      localContextMapView.hidePlaceDetailsView();
 
-      if (infoWindow) {
-        infoWindow.close();
-      }
-
-      // Create and open a new InfoWindow
-      createInfoWindow(district, marker);
-
-      // Define origin as the selected marker position
-      localContextMapView.directionsOptions = {
-        origin: district.location,
-      };
-    });
-  }
-
-  // Set the LocalContextMapView event handlers.
-  localContextMapView.addListener("placedetailsviewshowstart", () => {
-    if (infoWindow) {
-      infoWindow.close();
-    }
-  });
-
-  localContextMapView.addListener("placedetailsviewhidestart", () => {
-    if (infoStorage) {
-      createInfoWindow(infoStorage.district, infoStorage.marker);
-    }
+    // update the results with new places
+    localContextMapView.search();
   });
 }
 
-// Creates an infoWindow and also stores information associated with the
-// InfoWindow so the InfoWindow can be restored after it has been closed
-// by non-user-initiated events.
-function createInfoWindow(district, marker) {
-  // Build the content of the InfoWindow
-  const contentDiv = document.createElement("div");
-  const nameDiv = document.createElement("div");
-  const descriptionDiv = document.createTextNode(district.description);
-  contentDiv.classList.add("infowindow-content");
-  nameDiv.classList.add("title");
-  nameDiv.textContent = district.name;
-  descriptionDiv.textContent = district.description;
-  contentDiv.appendChild(nameDiv);
-  contentDiv.appendChild(descriptionDiv);
-
-  // Create and open a new InfoWindow
-  infoWindow = new google.maps.InfoWindow();
-  infoWindow.setContent(contentDiv);
-  infoWindow.open(map, marker);
-
-  // Store key properties of the InfoWindow for future restoration
-  infoStorage = {
-    district: district,
-    marker: marker,
-  };
-
-  // Clear content storage if infoWindow is closed by the user
-  infoWindow.addListener("closeclick", () => {
-    if (infoStorage) {
-      infoStorage = null;
-    }
-  });
-}
-
-export { initMap };
+export { initMap, localContextMapView };
