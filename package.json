@@ -1,5 +1,5 @@
 {
-  "name": "elevation-paths",
+  "name": "elevation-simple",
   "version": "1.0.0",
   "description": "Sample for Google Maps Platform JavaScript",
   "keywords": [
@@ -21,7 +21,6 @@
   },
   "devDependencies": {
     "@types/google.maps": "^3.44.3",
-    "@types/google.visualization": "0.0.60",
     "babel-loader": "^8.2.2",
     "css-loader": "^5.2.4",
     "dotenv": "^9.0.0",
