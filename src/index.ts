@@ -16,78 +16,31 @@
 /* eslint-disable no-undef, @typescript-eslint/no-unused-vars, no-unused-vars */
 import "./style.css";
 
-// @ts-nocheck TODO(jpoehnelt) remove when fixed
+// This example retrieves autocomplete predictions programmatically from the
+// autocomplete service, and displays them as an HTML list.
 
-// This sample requires the Places library. Include the libraries=places
+// This example requires the Places library. Include the libraries=places
 // parameter when you first load the API. For example:
-// <script
-// src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=places">
+// <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=places">
 
-function initMap(): void {
-  const map = new google.maps.Map(
-    document.getElementById("map") as HTMLElement,
-    {
-      center: { lat: -33.8688, lng: 151.2195 },
-      zoom: 13,
-    }
-  );
-
-  const input = document.getElementById("pac-input") as HTMLInputElement;
-
-  const autocomplete = new google.maps.places.Autocomplete(input);
-
-  autocomplete.bindTo("bounds", map);
-
-  // Specify just the place data fields that you need.
-  autocomplete.setFields(["place_id", "geometry", "name", "formatted_address"]);
-
-  map.controls[google.maps.ControlPosition.TOP_LEFT].push(input);
-
-  const infowindow = new google.maps.InfoWindow();
-  const infowindowContent = document.getElementById(
-    "infowindow-content"
-  ) as HTMLElement;
-  infowindow.setContent(infowindowContent);
-
-  const geocoder = new google.maps.Geocoder();
-
-  const marker = new google.maps.Marker({ map: map });
-  marker.addListener("click", () => {
-    infowindow.open(map, marker);
-  });
-
-  autocomplete.addListener("place_changed", () => {
-    infowindow.close();
-    const place = autocomplete.getPlace();
-
-    if (!place.place_id) {
+function initService() {
+  const displaySuggestions = function (
+    predictions: google.maps.places.QueryAutocompletePrediction[] | null,
+    status: google.maps.places.PlacesServiceStatus
+  ) {
+    if (status != google.maps.places.PlacesServiceStatus.OK || !predictions) {
+      alert(status);
       return;
     }
-    geocoder.geocode({ placeId: place.place_id }, (results, status) => {
-      if (status !== "OK" && results) {
-        window.alert("Geocoder failed due to: " + status);
-        return;
-      }
 
-      map.setZoom(11);
-      map.setCenter(results[0].geometry.location);
-
-      // Set the position of the marker using the place ID and location.
-      // @ts-ignore TODO(jpoehnelt) This should be in @typings/googlemaps.
-      marker.setPlace({
-        placeId: place.place_id,
-        location: results[0].geometry.location,
-      });
-
-      marker.setVisible(true);
-
-      infowindowContent.children["place-name"].textContent = place.name;
-      infowindowContent.children["place-id"].textContent = place.place_id;
-      infowindowContent.children["place-address"].textContent =
-        results[0].formatted_address;
-
-      infowindow.open(map, marker);
+    predictions.forEach((prediction) => {
+      const li = document.createElement("li");
+      li.appendChild(document.createTextNode(prediction.description));
+      (document.getElementById("results") as HTMLUListElement).appendChild(li);
     });
-  });
+  };
+
+  const service = new google.maps.places.AutocompleteService();
+  service.getQueryPredictions({ input: "pizza near Syd" }, displaySuggestions);
 }
-export { initMap };
+export { initService };
