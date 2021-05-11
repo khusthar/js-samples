@@ -16,44 +16,44 @@
 /* eslint-disable no-undef, @typescript-eslint/no-unused-vars, no-unused-vars */
 import "./style.css";
 
-// This example requires the Drawing library. Include the libraries=drawing
-// parameter when you first load the API. For example:
-// <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=drawing">
+let map: google.maps.Map;
 
 function initMap(): void {
-  const map = new google.maps.Map(
-    document.getElementById("map") as HTMLElement,
-    {
-      center: { lat: -34.397, lng: 150.644 },
-      zoom: 8,
-    }
-  );
-
-  const drawingManager = new google.maps.drawing.DrawingManager({
-    drawingMode: google.maps.drawing.OverlayType.MARKER,
-    drawingControl: true,
-    drawingControlOptions: {
-      position: google.maps.ControlPosition.TOP_CENTER,
-      drawingModes: [
-        google.maps.drawing.OverlayType.MARKER,
-        google.maps.drawing.OverlayType.CIRCLE,
-        google.maps.drawing.OverlayType.POLYGON,
-        google.maps.drawing.OverlayType.POLYLINE,
-        google.maps.drawing.OverlayType.RECTANGLE,
-      ],
-    },
-    markerOptions: {
-      icon: "https://developers.google.com/maps/documentation/javascript/examples/full/images/beachflag.png",
-    },
-    circleOptions: {
-      fillColor: "#ffff00",
-      fillOpacity: 1,
-      strokeWeight: 5,
-      clickable: false,
-      editable: true,
-      zIndex: 1,
-    },
+  map = new google.maps.Map(document.getElementById("map") as HTMLElement, {
+    zoom: 2,
+    center: { lat: -33.865427, lng: 151.196123 },
+    mapTypeId: "terrain",
   });
-  drawingManager.setMap(map);
+
+  // Create a <script> tag and set the USGS URL as the source.
+  const script = document.createElement("script");
+
+  // This example uses a local copy of the GeoJSON stored at
+  // http://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/2.5_week.geojsonp
+  script.src =
+    "https://developers.google.com/maps/documentation/javascript/examples/json/earthquake_GeoJSONP.js";
+  document.getElementsByTagName("head")[0].appendChild(script);
+
+  map.data.setStyle((feature) => {
+    const magnitude = feature.getProperty("mag");
+    return {
+      icon: getCircle(magnitude),
+    };
+  });
 }
-export { initMap };
+
+function getCircle(magnitude: number) {
+  return {
+    path: google.maps.SymbolPath.CIRCLE,
+    fillColor: "red",
+    fillOpacity: 0.2,
+    scale: Math.pow(2, magnitude) / 2,
+    strokeColor: "white",
+    strokeWeight: 0.5,
+  };
+}
+
+function eqfeed_callback(results: any) {
+  map.data.addGeoJson(results);
+}
+export { initMap, eqfeed_callback };
