@@ -20,46 +20,79 @@ import "./style.css";
 // parameter when you first load the API. For example:
 // <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=geometry">
 
+let marker1: google.maps.Marker, marker2: google.maps.Marker;
+let poly: google.maps.Polyline, geodesicPoly: google.maps.Polyline;
+
 function initMap(): void {
   const map = new google.maps.Map(
     document.getElementById("map") as HTMLElement,
     {
-      zoom: 14,
-      center: { lat: 34.366, lng: -89.519 },
+      zoom: 4,
+      center: { lat: 34, lng: -40.605 },
     }
   );
-  const poly = new google.maps.Polyline({
-    strokeColor: "#000000",
-    strokeOpacity: 1,
+
+  map.controls[google.maps.ControlPosition.TOP_CENTER].push(
+    document.getElementById("info") as HTMLElement
+  );
+
+  marker1 = new google.maps.Marker({
+    map,
+    draggable: true,
+    position: { lat: 40.714, lng: -74.006 },
+  });
+
+  marker2 = new google.maps.Marker({
+    map,
+    draggable: true,
+    position: { lat: 48.857, lng: 2.352 },
+  });
+
+  const bounds = new google.maps.LatLngBounds(
+    marker1.getPosition() as google.maps.LatLng,
+    marker2.getPosition() as google.maps.LatLng
+  );
+  map.fitBounds(bounds);
+
+  google.maps.event.addListener(marker1, "position_changed", update);
+  google.maps.event.addListener(marker2, "position_changed", update);
+
+  poly = new google.maps.Polyline({
+    strokeColor: "#FF0000",
+    strokeOpacity: 1.0,
     strokeWeight: 3,
     map: map,
   });
 
-  // Add a listener for the click event
-  google.maps.event.addListener(map, "click", (event) => {
-    addLatLngToPoly(event.latLng, poly);
+  geodesicPoly = new google.maps.Polyline({
+    strokeColor: "#CC0099",
+    strokeOpacity: 1.0,
+    strokeWeight: 3,
+    geodesic: true,
+    map: map,
   });
+
+  update();
 }
 
-/**
- * Handles click events on a map, and adds a new point to the Polyline.
- * Updates the encoding text area with the path's encoded values.
- */
-function addLatLngToPoly(
-  latLng: google.maps.LatLng,
-  poly: google.maps.Polyline
-) {
-  const path = poly.getPath();
-  // Because path is an MVCArray, we can simply append a new coordinate
-  // and it will automatically appear
-  path.push(latLng);
-
-  // Update the text field to display the polyline encodings
-  const encodeString = google.maps.geometry.encoding.encodePath(path);
-
-  if (encodeString) {
-    (document.getElementById("encoded-polyline") as HTMLInputElement).value =
-      encodeString;
-  }
+function update() {
+  const path = [
+    marker1.getPosition() as google.maps.LatLng,
+    marker2.getPosition() as google.maps.LatLng,
+  ];
+  poly.setPath(path);
+  geodesicPoly.setPath(path);
+  const heading = google.maps.geometry.spherical.computeHeading(
+    path[0],
+    path[1]
+  );
+  (document.getElementById("heading") as HTMLInputElement).value =
+    String(heading);
+  (document.getElementById("origin") as HTMLInputElement).value = String(
+    path[0]
+  );
+  (document.getElementById("destination") as HTMLInputElement).value = String(
+    path[1]
+  );
 }
 export { initMap };
