@@ -16,56 +16,42 @@
 /* eslint-disable no-undef, @typescript-eslint/no-unused-vars, no-unused-vars */
 import "./style.css";
 
-// This example creates draggable triangles on the map.
-// Note also that the red triangle is geodesic, so its shape changes
-// as you drag it north or south.
+// This example creates a triangular polygon with a hole in it.
 
 function initMap(): void {
   const map = new google.maps.Map(
     document.getElementById("map") as HTMLElement,
     {
-      zoom: 1,
+      zoom: 5,
       center: { lat: 24.886, lng: -70.268 },
-      mapTypeId: "terrain",
     }
   );
 
-  const blueCoords = [
-    { lat: 25.774, lng: -60.19 },
-    { lat: 18.466, lng: -46.118 },
-    { lat: 32.321, lng: -44.757 },
-  ];
-
-  const redCoords = [
+  // Define the LatLng coordinates for the polygon's  outer path.
+  const outerCoords = [
     { lat: 25.774, lng: -80.19 },
     { lat: 18.466, lng: -66.118 },
     { lat: 32.321, lng: -64.757 },
   ];
 
-  // Construct a draggable red triangle with geodesic set to true.
-  new google.maps.Polygon({
-    map,
-    paths: redCoords,
-    strokeColor: "#FF0000",
-    strokeOpacity: 0.8,
-    strokeWeight: 2,
-    fillColor: "#FF0000",
-    fillOpacity: 0.35,
-    draggable: true,
-    geodesic: true,
-  });
+  // Define the LatLng coordinates for the polygon's inner path.
+  // Note that the points forming the inner path are wound in the
+  // opposite direction to those in the outer path, to form the hole.
+  const innerCoords = [
+    { lat: 28.745, lng: -70.579 },
+    { lat: 29.57, lng: -67.514 },
+    { lat: 27.339, lng: -66.668 },
+  ];
 
-  // Construct a draggable blue triangle with geodesic set to false.
-  new google.maps.Polygon({
-    map,
-    paths: blueCoords,
-    strokeColor: "#0000FF",
+  // Construct the polygon, including both paths.
+  const bermudaTriangle = new google.maps.Polygon({
+    paths: [outerCoords, innerCoords],
+    strokeColor: "#FFC107",
     strokeOpacity: 0.8,
     strokeWeight: 2,
-    fillColor: "#0000FF",
+    fillColor: "#FFC107",
     fillOpacity: 0.35,
-    draggable: true,
-    geodesic: false,
   });
+  bermudaTriangle.setMap(map);
 }
 export { initMap };
