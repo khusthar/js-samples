@@ -17,23 +17,33 @@
 import "./style.css";
 
 function initMap(): void {
-  const originalMapCenter = new google.maps.LatLng(-25.363882, 131.044922);
+  const myLatlng = { lat: -25.363, lng: 131.044 };
+
   const map = new google.maps.Map(
     document.getElementById("map") as HTMLElement,
     {
       zoom: 4,
-      center: originalMapCenter,
+      center: myLatlng,
     }
   );
 
-  const infowindow = new google.maps.InfoWindow({
-    content: "Change the zoom level",
-    position: originalMapCenter,
+  const marker = new google.maps.Marker({
+    position: myLatlng,
+    map,
+    title: "Click to zoom",
   });
-  infowindow.open(map);
 
-  map.addListener("zoom_changed", () => {
-    infowindow.setContent("Zoom: " + map.getZoom()!);
+  map.addListener("center_changed", () => {
+    // 3 seconds after the center of the map has changed, pan back to the
+    // marker.
+    window.setTimeout(() => {
+      map.panTo(marker.getPosition() as google.maps.LatLng);
+    }, 3000);
+  });
+
+  marker.addListener("click", () => {
+    map.setZoom(8);
+    map.setCenter(marker.getPosition() as google.maps.LatLng);
   });
 }
 export { initMap };
