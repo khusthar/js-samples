@@ -16,27 +16,15 @@
 /* eslint-disable no-undef, @typescript-eslint/no-unused-vars, no-unused-vars */
 import "./style.css";
 
-let map: google.maps.Map;
-
 function initMap(): void {
-  map = new google.maps.Map(document.getElementById("map") as HTMLElement, {
-    center: { lat: 40.76, lng: -73.983 },
-    zoom: 15,
-    mapTypeId: "satellite",
-    heading: 90,
-    tilt: 45,
-  });
+  const map = new google.maps.Map(
+    document.getElementById("map") as HTMLElement,
+    {
+      center: { lat: 40.76, lng: -73.983 },
+      zoom: 15,
+      mapTypeId: "satellite",
+    }
+  );
+  map.setTilt(45);
 }
-
-function rotate90() {
-  const heading = map.getHeading() || 0;
-  map.setHeading(heading + 90);
-}
-
-function autoRotate() {
-  // Determine if we're showing aerial imagery.
-  if (map.getTilt() !== 0) {
-    window.setInterval(rotate90, 3000);
-  }
-}
-export { initMap, autoRotate };
+export { initMap };
