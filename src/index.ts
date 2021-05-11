@@ -33,20 +33,6 @@ function initMap(): void {
     "https://storage.googleapis.com/mapsdevsite/json/quakes.geo.json"
   );
   document.getElementsByTagName("head")[0].appendChild(script);
-
-  // Add a basic style.
-  map.data.setStyle((feature) => {
-    const mag = Math.exp(parseFloat(feature.getProperty("mag"))) * 0.1;
-    return /** @type {google.maps.Data.StyleOptions} */ {
-      icon: {
-        path: google.maps.SymbolPath.CIRCLE,
-        scale: mag,
-        fillColor: "#f00",
-        fillOpacity: 0.35,
-        strokeWeight: 0,
-      },
-    };
-  });
 }
 
 // Defines the callback function referenced in the jsonp file.
