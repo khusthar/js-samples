@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Google LLC. All Rights Reserved.
+ * Copyright 2019 Google LLC. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,49 +16,35 @@
 /* eslint-disable no-undef, @typescript-eslint/no-unused-vars, no-unused-vars */
 import "./style.css";
 
-// The following example creates five accessible and
-// focusable markers.
+// The following example creates a marker in Stockholm, Sweden using a DROP
+// animation. Clicking on the marker will toggle the animation between a BOUNCE
+// animation and no animation.
+
+let marker: google.maps.Marker;
 
 function initMap(): void {
   const map = new google.maps.Map(
     document.getElementById("map") as HTMLElement,
     {
-      zoom: 12,
-      center: { lat: 34.84555, lng: -111.8035 },
+      zoom: 13,
+      center: { lat: 59.325, lng: 18.07 },
     }
   );
 
-  // Set LatLng and title text for the markers. The first marker (Boynton Pass)
-  // receives the initial focus when tab is pressed. Use arrow keys to
-  // move between markers; press tab again to cycle through the map controls.
-  const tourStops: [google.maps.LatLngLiteral, string][] = [
-    [{ lat: 34.8791806, lng: -111.8265049 }, "Boynton Pass"],
-    [{ lat: 34.8559195, lng: -111.7988186 }, "Airport Mesa"],
-    [{ lat: 34.832149, lng: -111.7695277 }, "Chapel of the Holy Cross"],
-    [{ lat: 34.823736, lng: -111.8001857 }, "Red Rock Crossing"],
-    [{ lat: 34.800326, lng: -111.7665047 }, "Bell Rock"],
-  ];
-
-  // Create an info window to share between markers.
-  const infoWindow = new google.maps.InfoWindow();
-
-  // Create the markers.
-  tourStops.forEach(([position, title], i) => {
-    const marker = new google.maps.Marker({
-      position,
-      map,
-      title: `${i + 1}. ${title}`,
-      label: `${i + 1}`,
-      optimized: false,
-    });
-
-    // Add a click listener for each marker, and set up the info window.
-    marker.addListener("click", () => {
-      infoWindow.close();
-      infoWindow.setContent(marker.getTitle());
-      infoWindow.open(marker.getMap(), marker);
-    });
+  marker = new google.maps.Marker({
+    map,
+    draggable: true,
+    animation: google.maps.Animation.DROP,
+    position: { lat: 59.327, lng: 18.067 },
   });
+  marker.addListener("click", toggleBounce);
 }
 
+function toggleBounce() {
+  if (marker.getAnimation() !== null) {
+    marker.setAnimation(null);
+  } else {
+    marker.setAnimation(google.maps.Animation.BOUNCE);
+  }
+}
 export { initMap };
