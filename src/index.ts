@@ -16,55 +16,71 @@
 /* eslint-disable no-undef, @typescript-eslint/no-unused-vars, no-unused-vars */
 import "./style.css";
 
-// This example requires the Geometry library. Include the libraries=geometry
-// parameter when you first load the API. For example:
-// <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=geometry">
+// This example creates a simple polygon representing the Bermuda Triangle.
+// When the user clicks on the polygon an info window opens, showing
+// information about the polygon's coordinates.
+
+let map: google.maps.Map;
+
+let infoWindow: google.maps.InfoWindow;
 
 function initMap(): void {
-  const map = new google.maps.Map(
-    document.getElementById("map") as HTMLElement,
-    {
-      center: { lat: 24.886, lng: -70.269 },
-      zoom: 5,
-    }
-  );
+  map = new google.maps.Map(document.getElementById("map") as HTMLElement, {
+    zoom: 5,
+    center: { lat: 24.886, lng: -70.268 },
+    mapTypeId: "terrain",
+  });
 
-  const triangleCoords = [
+  // Define the LatLng coordinates for the polygon.
+  const triangleCoords: google.maps.LatLngLiteral[] = [
     { lat: 25.774, lng: -80.19 },
     { lat: 18.466, lng: -66.118 },
     { lat: 32.321, lng: -64.757 },
   ];
 
-  const bermudaTriangle = new google.maps.Polygon({ paths: triangleCoords });
-
-  google.maps.event.addListener(map, "click", (e) => {
-    const resultColor = google.maps.geometry.poly.containsLocation(
-      e.latLng,
-      bermudaTriangle
-    )
-      ? "blue"
-      : "red";
-
-    const resultPath = google.maps.geometry.poly.containsLocation(
-      e.latLng,
-      bermudaTriangle
-    )
-      ? // A triangle.
-        "m 0 -1 l 1 2 -2 0 z"
-      : google.maps.SymbolPath.CIRCLE;
-
-    new google.maps.Marker({
-      position: e.latLng,
-      map,
-      icon: {
-        path: resultPath,
-        fillColor: resultColor,
-        fillOpacity: 0.2,
-        strokeColor: "white",
-        strokeWeight: 0.5,
-        scale: 10,
-      },
-    });
+  // Construct the polygon.
+  const bermudaTriangle = new google.maps.Polygon({
+    paths: triangleCoords,
+    strokeColor: "#FF0000",
+    strokeOpacity: 0.8,
+    strokeWeight: 3,
+    fillColor: "#FF0000",
+    fillOpacity: 0.35,
   });
+  bermudaTriangle.setMap(map);
+
+  // Add a listener for the click event.
+  bermudaTriangle.addListener("click", showArrays);
+
+  infoWindow = new google.maps.InfoWindow();
+}
+
+function showArrays(event: any) {
+  // Since this polygon has only one path, we can call getPath() to return the
+  // MVCArray of LatLngs.
+  // @ts-ignore
+  const polygon = this as google.maps.Polygon;
+  const vertices = polygon.getPath();
+
+  let contentString =
+    "<b>Bermuda Triangle polygon</b><br>" +
+    "Clicked location: <br>" +
+    event.latLng.lat() +
+    "," +
+    event.latLng.lng() +
+    "<br>";
+
+  // Iterate over the vertices.
+  for (let i = 0; i < vertices.getLength(); i++) {
+    const xy = vertices.getAt(i);
+    contentString +=
+      "<br>" + "Coordinate " + i + ":<br>" + xy.lat() + "," + xy.lng();
+  }
+
+  // Replace the info window's content and position.
+  infoWindow.setContent(contentString);
+  infoWindow.setPosition(event.latLng);
+
+  infoWindow.open(map);
 }
 export { initMap };
