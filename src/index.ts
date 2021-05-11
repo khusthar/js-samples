@@ -15,62 +15,63 @@
  */
 /* eslint-disable no-undef, @typescript-eslint/no-unused-vars, no-unused-vars */
 import "./style.css";
-const events = [
-  "bounds_changed",
-  "center_changed",
-  "click",
-  "contextmenu",
-  "dblclick",
-  "drag",
-  "dragend",
-  "dragstart",
-  "heading_changed",
-  "idle",
-  "maptypeid_changed",
-  "mousemove",
-  "mouseout",
-  "mouseover",
-  "projection_changed",
-  "resize",
-  "rightclick", // use contextmenu
-  "tilesloaded",
-  "tilt_changed",
-  "zoom_changed",
-];
 
-function setupListener(map: google.maps.Map, name: string) {
-  const eventRow = document.getElementById(name) as HTMLElement;
-  google.maps.event.addListener(map, name, () => {
-    eventRow.className = "event active";
-    const timeout = setTimeout(() => {
-      eventRow.className = "event inactive";
-    }, 1000);
-  });
-}
+// Note: This example requires that you consent to location sharing when
+// prompted by your browser. If you see the error "The Geolocation service
+// failed.", it means you probably did not give permission for the browser to
+// locate you.
+let map: google.maps.Map, infoWindow: google.maps.InfoWindow;
 
 function initMap(): void {
-  populateTable();
-  const mapDiv = document.getElementById("map") as HTMLElement;
-  const map = new google.maps.Map(mapDiv, {
-    center: new google.maps.LatLng(37.4419, -122.1419),
-    zoom: 13,
-    mapTypeId: "roadmap",
+  map = new google.maps.Map(document.getElementById("map") as HTMLElement, {
+    center: { lat: -34.397, lng: 150.644 },
+    zoom: 6,
   });
+  infoWindow = new google.maps.InfoWindow();
 
-  for (let i = 0; i < events.length; i++) {
-    setupListener(map, events[i]);
-  }
+  const locationButton = document.createElement("button");
+  locationButton.textContent = "Pan to Current Location";
+  locationButton.classList.add("custom-map-control-button");
+
+  map.controls[google.maps.ControlPosition.TOP_CENTER].push(locationButton);
+
+  locationButton.addEventListener("click", () => {
+    // Try HTML5 geolocation.
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position: Position) => {
+          const pos = {
+            lat: position.coords.latitude,
+            lng: position.coords.longitude,
+          };
+
+          infoWindow.setPosition(pos);
+          infoWindow.setContent("Location found.");
+          infoWindow.open(map);
+          map.setCenter(pos);
+        },
+        () => {
+          handleLocationError(true, infoWindow, map.getCenter()!);
+        }
+      );
+    } else {
+      // Browser doesn't support Geolocation
+      handleLocationError(false, infoWindow, map.getCenter()!);
+    }
+  });
 }
 
-// Dynamically create the table of events from the defined hashmap
-function populateTable() {
-  const eventsTable = document.getElementById("events") as HTMLElement;
-  let content = "";
-
-  for (let i = 0; i < events.length; i++) {
-    content +=
-      '<div class="event" id="' + events[i] + '">' + events[i] + "</div>";
-  }
-  eventsTable.innerHTML = content;
+function handleLocationError(
+  browserHasGeolocation: boolean,
+  infoWindow: google.maps.InfoWindow,
+  pos: google.maps.LatLng
+) {
+  infoWindow.setPosition(pos);
+  infoWindow.setContent(
+    browserHasGeolocation
+      ? "Error: The Geolocation service failed."
+      : "Error: Your browser doesn't support geolocation."
+  );
+  infoWindow.open(map);
 }
 export { initMap };
