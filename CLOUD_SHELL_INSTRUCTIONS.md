@@ -1,11 +1,11 @@
-# Run the `polygon-simple` sample in Google Cloud Shell
+# Run the `polyline-complex` sample in Google Cloud Shell
 
 <walkthrough-tutorial-duration duration="10"/>
 
 ## Introduction
 
 This tutorial will walk through the process of running a web application from
-the `polygon-simple` sample using TypeScript, Babel, and Webpack.
+the `polyline-complex` sample using TypeScript, Babel, and Webpack.
 
 For feedback related to this sample, please open a new issue on
 [GitHub](https://github.com/googlemaps/js-samples/issues).
