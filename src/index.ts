@@ -16,23 +16,33 @@
 /* eslint-disable no-undef, @typescript-eslint/no-unused-vars, no-unused-vars */
 import "./style.css";
 
-function initMap(): void {
-  const center = new google.maps.LatLng({ lat: -25.363, lng: 131.044 });
-  const zoom = 4;
+/**
+ * @fileoverview Sample showing capturing a KML file click
+ *   and displaying the contents in a side panel instead of
+ *   an InfoWindow
+ */
+let map: google.maps.Map;
 
-  new google.maps.Map(document.getElementById("map")!, {
-    zoom,
-    center,
-    minZoom: zoom - 3,
-    maxZoom: zoom + 3,
-    restriction: {
-      latLngBounds: {
-        north: -10,
-        south: -40,
-        east: 160,
-        west: 100,
-      },
-    },
+const url =
+  "https://developers.google.com/maps/documentation/javascript/examples/kml/westcampus.kml";
+
+function initMap(): void {
+  map = new google.maps.Map(document.getElementById("map") as HTMLElement, {
+    center: new google.maps.LatLng(-19.257753, 146.823688),
+    zoom: 2,
+    mapTypeId: "terrain",
+  });
+
+  const kmlLayer = new google.maps.KmlLayer({
+    suppressInfoWindows: true,
+    preserveViewport: false,
+    map,
+    url,
+  });
+  kmlLayer.addListener("click", (event) => {
+    const content = event.featureData.infoWindowHtml;
+    const testimonial = document.getElementById("capture") as HTMLElement;
+    testimonial.innerHTML = content;
   });
 }
 export { initMap };
