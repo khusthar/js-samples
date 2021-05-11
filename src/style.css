@@ -11,3 +11,12 @@ body {
   margin: 0;
   padding: 0;
 }
+
+.infowindow-content {
+  width: 300px;
+}
+
+.title {
+  font-size: x-large;
+  font-weight: bold;
+}
