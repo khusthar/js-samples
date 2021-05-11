@@ -15,60 +15,79 @@
  */
 /* eslint-disable no-undef, @typescript-eslint/no-unused-vars, no-unused-vars */
 import "./style.css";
+// eslint-disable no-undef
+let map: google.maps.Map;
 
+// Initialize and add the map
 function initMap(): void {
-  const map = new google.maps.Map(
+  let markers: google.maps.Marker[] = [];
+
+  // @ts-ignore Beta functionality
+  let collisionBehavior = google.maps.CollisionBehavior.REQUIRED;
+
+  map = new google.maps.Map(
     document.getElementById("map") as HTMLElement,
     {
-      zoom: 3,
-      center: { lat: -28.024, lng: 140.887 },
-    }
+      mapId: "3a3b33f0edd6ed2a",
+      center: { lat: 47.609414458375674, lng: -122.33897030353548 },
+      zoom: 17,
+    } as google.maps.MapOptions
   );
 
-  // Create an array of alphabetical characters used to label the markers.
-  const labels = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  const menuList = document.querySelector(".mdc-list") as HTMLUListElement;
 
-  // Add some markers to the map.
-  // Note: The code uses the JavaScript Array.prototype.map() method to
-  // create an array of markers based on a given "locations" array.
-  // The map() method here has nothing to do with the Google Maps API.
-  const markers = locations.map((location, i) => {
-    return new google.maps.Marker({
-      position: location,
-      label: labels[i % labels.length],
+  // Add the behaviors to the select options
+  // @ts-ignore Beta functionality
+  for (const [key, value] of Object.entries(google.maps.CollisionBehavior)) {
+    const item = document.createElement("LI");
+    item.classList.add("mdc-list-item");
+    item.setAttribute("data-value", key);
+
+    const itemText = document.createElement("SPAN") as HTMLSpanElement;
+    itemText.classList.add("mdc-list-item__text");
+    itemText.innerText = value as string;
+
+    item.appendChild(itemText);
+    menuList.appendChild(item);
+  }
+
+  // @ts-ignore
+  const select = new mdc.select.MDCSelect(
+    document.querySelector(".mdc-select") as HTMLElement
+  );
+
+  select.listen("MDCSelect:change", () => {
+    collisionBehavior = select.value;
+    markers.forEach((marker) => {
+      marker.set("collisionBehavior", collisionBehavior);
     });
   });
 
-  // Add a marker clusterer to manage the markers.
-  // @ts-ignore MarkerClusterer defined via script
-  new MarkerClusterer(map, markers, {
-    imagePath:
-      "https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m",
-  });
+  select.value = collisionBehavior;
+
+  // Create some markers on the map
+  markers = [
+    [-122.3402, 47.6093],
+    [-122.3402, 47.6094],
+    [-122.3403, 47.6094],
+    [-122.3384, 47.6098],
+    [-122.3389, 47.6095],
+    [-122.3396, 47.6095],
+    [-122.3379, 47.6097],
+    [-122.3378, 47.6097],
+    [-122.3396, 47.6091],
+    [-122.3383, 47.6089],
+    [-122.3379, 47.6093],
+    [-122.3381, 47.6095],
+    [-122.3378, 47.6095],
+  ].map(
+    ([lng, lat]: number[], i: number) =>
+      new google.maps.Marker({
+        position: new google.maps.LatLng({ lat, lng }),
+        map,
+        zIndex: i,
+        collisionBehavior: collisionBehavior,
+      } as google.maps.MarkerOptions)
+  );
 }
-const locations = [
-  { lat: -31.56391, lng: 147.154312 },
-  { lat: -33.718234, lng: 150.363181 },
-  { lat: -33.727111, lng: 150.371124 },
-  { lat: -33.848588, lng: 151.209834 },
-  { lat: -33.851702, lng: 151.216968 },
-  { lat: -34.671264, lng: 150.863657 },
-  { lat: -35.304724, lng: 148.662905 },
-  { lat: -36.817685, lng: 175.699196 },
-  { lat: -36.828611, lng: 175.790222 },
-  { lat: -37.75, lng: 145.116667 },
-  { lat: -37.759859, lng: 145.128708 },
-  { lat: -37.765015, lng: 145.133858 },
-  { lat: -37.770104, lng: 145.143299 },
-  { lat: -37.7737, lng: 145.145187 },
-  { lat: -37.774785, lng: 145.137978 },
-  { lat: -37.819616, lng: 144.968119 },
-  { lat: -38.330766, lng: 144.695692 },
-  { lat: -39.927193, lng: 175.053218 },
-  { lat: -41.330162, lng: 174.865694 },
-  { lat: -42.734358, lng: 147.439506 },
-  { lat: -42.734358, lng: 147.501315 },
-  { lat: -42.735258, lng: 147.438 },
-  { lat: -43.999792, lng: 170.463352 },
-];
 export { initMap };
