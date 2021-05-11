@@ -16,31 +16,48 @@
 /* eslint-disable no-undef, @typescript-eslint/no-unused-vars, no-unused-vars */
 import "./style.css";
 
-let map: google.maps.Map;
+// This example uses the Google Maps JavaScript API's Data layer
+// to create a rectangular polygon with 2 holes in it.
 
 function initMap(): void {
-  map = new google.maps.Map(document.getElementById("map") as HTMLElement, {
-    zoom: 4,
-    center: { lat: -28, lng: 137 },
-  });
-
-  // Load GeoJSON.
-  map.data.loadGeoJson(
-    "https://storage.googleapis.com/maps-devrel/google.json"
+  const map = new google.maps.Map(
+    document.getElementById("map") as HTMLElement,
+    {
+      zoom: 6,
+      center: { lat: -33.872, lng: 151.252 },
+    }
   );
 
-  // Add some style.
-  map.data.setStyle((feature) => {
-    return /** @type {google.maps.Data.StyleOptions} */ {
-      fillColor: feature.getProperty("color"),
-      strokeWeight: 1,
-    };
-  });
+  // Define the LatLng coordinates for the outer path.
+  const outerCoords = [
+    { lat: -32.364, lng: 153.207 }, // north west
+    { lat: -35.364, lng: 153.207 }, // south west
+    { lat: -35.364, lng: 158.207 }, // south east
+    { lat: -32.364, lng: 158.207 }, // north east
+  ];
 
-  // Set mouseover event for each feature.
-  map.data.addListener("mouseover", (event) => {
-    (document.getElementById("info-box") as HTMLElement).textContent =
-      event.feature.getProperty("letter");
+  // Define the LatLng coordinates for an inner path.
+  const innerCoords1 = [
+    { lat: -33.364, lng: 154.207 },
+    { lat: -34.364, lng: 154.207 },
+    { lat: -34.364, lng: 155.207 },
+    { lat: -33.364, lng: 155.207 },
+  ];
+
+  // Define the LatLng coordinates for another inner path.
+  const innerCoords2 = [
+    { lat: -33.364, lng: 156.207 },
+    { lat: -34.364, lng: 156.207 },
+    { lat: -34.364, lng: 157.207 },
+    { lat: -33.364, lng: 157.207 },
+  ];
+
+  map.data.add({
+    geometry: new google.maps.Data.Polygon([
+      outerCoords,
+      innerCoords1,
+      innerCoords2,
+    ]),
   });
 }
 export { initMap };
