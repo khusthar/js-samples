@@ -18,48 +18,52 @@ import "./style.css";
 
 // @ts-nocheck TODO(jpoehnelt) remove when fixed
 
+// Initialize the map.
 function initMap(): void {
-  const geocoder = new google.maps.Geocoder();
   const map = new google.maps.Map(
     document.getElementById("map") as HTMLElement,
     {
       zoom: 8,
-      center: { lat: -33.865, lng: 151.209 },
+      center: { lat: 40.72, lng: -73.96 },
     }
   );
+  const geocoder = new google.maps.Geocoder();
+  const infowindow = new google.maps.InfoWindow();
 
   (document.getElementById("submit") as HTMLElement).addEventListener(
     "click",
     () => {
-      geocodeAddress(geocoder, map);
+      geocodePlaceId(geocoder, map, infowindow);
     }
   );
 }
 
-function geocodeAddress(geocoder: google.maps.Geocoder, map: google.maps.Map) {
-  geocoder.geocode(
-    {
-      componentRestrictions: {
-        country: "AU",
-        postalCode: "2000",
-      },
-    },
-    (
-      results: google.maps.GeocoderResult[],
-      status: google.maps.GeocoderStatus
-    ) => {
-      if (status === "OK") {
+// This function is called when the user clicks the UI button requesting
+// a geocode of a place ID.
+function geocodePlaceId(
+  geocoder: google.maps.Geocoder,
+  map: google.maps.Map,
+  infowindow: google.maps.InfoWindow
+) {
+  const placeId = (document.getElementById("place-id") as HTMLInputElement)
+    .value;
+  geocoder.geocode({ placeId: placeId }, (results, status) => {
+    if (status === "OK") {
+      if (results[0]) {
+        map.setZoom(11);
         map.setCenter(results[0].geometry.location);
-        new google.maps.Marker({
+        const marker = new google.maps.Marker({
           map,
           position: results[0].geometry.location,
         });
+        infowindow.setContent(results[0].formatted_address);
+        infowindow.open(map, marker);
       } else {
-        window.alert(
-          "Geocode was not successful for the following reason: " + status
-        );
+        window.alert("No results found");
       }
+    } else {
+      window.alert("Geocoder failed due to: " + status);
     }
-  );
+  });
 }
 export { initMap };
