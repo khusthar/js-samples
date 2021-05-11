@@ -17,8 +17,8 @@
 import "./style.css";
 
 function initMap(): void {
-  const directionsRenderer = new google.maps.DirectionsRenderer();
   const directionsService = new google.maps.DirectionsService();
+  const directionsRenderer = new google.maps.DirectionsRenderer();
   const map = new google.maps.Map(
     document.getElementById("map") as HTMLElement,
     {
@@ -27,13 +27,6 @@ function initMap(): void {
     }
   );
   directionsRenderer.setMap(map);
-  directionsRenderer.setPanel(
-    document.getElementById("right-panel") as HTMLElement
-  );
-
-  const control = document.getElementById("floating-panel") as HTMLElement;
-  control.style.display = "block";
-  map.controls[google.maps.ControlPosition.TOP_CENTER].push(control);
 
   const onChangeHandler = function () {
     calculateAndDisplayRoute(directionsService, directionsRenderer);
@@ -52,12 +45,14 @@ function calculateAndDisplayRoute(
   directionsService: google.maps.DirectionsService,
   directionsRenderer: google.maps.DirectionsRenderer
 ) {
-  const start = (document.getElementById("start") as HTMLInputElement).value;
-  const end = (document.getElementById("end") as HTMLInputElement).value;
   directionsService.route(
     {
-      origin: start,
-      destination: end,
+      origin: {
+        query: (document.getElementById("start") as HTMLInputElement).value,
+      },
+      destination: {
+        query: (document.getElementById("end") as HTMLInputElement).value,
+      },
       travelMode: google.maps.TravelMode.DRIVING,
     },
     (response, status) => {
