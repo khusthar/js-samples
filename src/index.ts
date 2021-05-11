@@ -16,81 +16,38 @@
 /* eslint-disable no-undef, @typescript-eslint/no-unused-vars, no-unused-vars */
 import "./style.css";
 
-let map: google.maps.Map, popup, Popup;
+// This example adds a UI control allowing users to remove the
+// ground overlay from the map.
 
-/** Initializes the map and the custom popup. */
+let historicalOverlay: google.maps.GroundOverlay;
+let map: google.maps.Map;
+
 function initMap(): void {
   map = new google.maps.Map(document.getElementById("map") as HTMLElement, {
-    center: { lat: -33.9, lng: 151.1 },
-    zoom: 10,
+    zoom: 13,
+    center: { lat: 40.74, lng: -74.18 },
   });
 
-  /**
-   * A customized popup on the map.
-   */
-  class Popup extends google.maps.OverlayView {
-    position: google.maps.LatLng;
-    containerDiv: HTMLDivElement;
+  const imageBounds = {
+    north: 40.773941,
+    south: 40.712216,
+    east: -74.12544,
+    west: -74.22655,
+  };
 
-    constructor(position: google.maps.LatLng, content: HTMLElement) {
-      super();
-      this.position = position;
-
-      content.classList.add("popup-bubble");
-
-      // This zero-height div is positioned at the bottom of the bubble.
-      const bubbleAnchor = document.createElement("div");
-      bubbleAnchor.classList.add("popup-bubble-anchor");
-      bubbleAnchor.appendChild(content);
-
-      // This zero-height div is positioned at the bottom of the tip.
-      this.containerDiv = document.createElement("div");
-      this.containerDiv.classList.add("popup-container");
-      this.containerDiv.appendChild(bubbleAnchor);
-
-      // Optionally stop clicks, etc., from bubbling up to the map.
-      Popup.preventMapHitsAndGesturesFrom(this.containerDiv);
-    }
-
-    /** Called when the popup is added to the map. */
-    onAdd() {
-      this.getPanes()!.floatPane.appendChild(this.containerDiv);
-    }
-
-    /** Called when the popup is removed from the map. */
-    onRemove() {
-      if (this.containerDiv.parentElement) {
-        this.containerDiv.parentElement.removeChild(this.containerDiv);
-      }
-    }
-
-    /** Called each frame when the popup needs to draw itself. */
-    draw() {
-      const divPosition = this.getProjection().fromLatLngToDivPixel(
-        this.position
-      )!;
-
-      // Hide the popup when it is far out of view.
-      const display =
-        Math.abs(divPosition.x) < 4000 && Math.abs(divPosition.y) < 4000
-          ? "block"
-          : "none";
-
-      if (display === "block") {
-        this.containerDiv.style.left = divPosition.x + "px";
-        this.containerDiv.style.top = divPosition.y + "px";
-      }
-
-      if (this.containerDiv.style.display !== display) {
-        this.containerDiv.style.display = display;
-      }
-    }
-  }
-
-  popup = new Popup(
-    new google.maps.LatLng(-33.866, 151.196),
-    document.getElementById("content") as HTMLElement
+  historicalOverlay = new google.maps.GroundOverlay(
+    "https://www.lib.utexas.edu/maps/historical/newark_nj_1922.jpg",
+    imageBounds
   );
-  popup.setMap(map);
+
+  addOverlay();
 }
-export { initMap };
+
+function addOverlay() {
+  historicalOverlay.setMap(map);
+}
+
+function removeOverlay() {
+  historicalOverlay.setMap(null);
+}
+export { initMap, removeOverlay, addOverlay };
