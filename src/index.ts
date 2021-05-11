@@ -16,23 +16,27 @@
 /* eslint-disable no-undef, @typescript-eslint/no-unused-vars, no-unused-vars */
 import "./style.css";
 
-// Initialize and add the map
-function initMap(): void {
-  // The location of Uluru
-  const uluru = { lat: -25.344, lng: 131.036 };
-  // The map, centered at Uluru
-  const map = new google.maps.Map(
-    document.getElementById("map") as HTMLElement,
-    {
-      zoom: 4,
-      center: uluru,
-    }
-  );
+let map: google.maps.Map;
 
-  // The marker, positioned at Uluru
-  const marker = new google.maps.Marker({
-    position: uluru,
-    map: map,
+function initMap(): void {
+  map = new google.maps.Map(document.getElementById("map") as HTMLElement, {
+    center: { lat: 40.76, lng: -73.983 },
+    zoom: 15,
+    mapTypeId: "satellite",
+    heading: 90,
+    tilt: 45,
   });
 }
-export { initMap };
+
+function rotate90() {
+  const heading = map.getHeading() || 0;
+  map.setHeading(heading + 90);
+}
+
+function autoRotate() {
+  // Determine if we're showing aerial imagery.
+  if (map.getTilt() !== 0) {
+    window.setInterval(rotate90, 3000);
+  }
+}
+export { initMap, autoRotate };
