@@ -121,3 +121,10 @@ pkg_tar(
     strip_prefix = ".",
     remap_paths = remap_paths,
 )
+
+sh_binary(
+    name = "sample-to-branch",
+    args = ["$(location :public.tar)"],
+    srcs = ["sample-to-branch.sh"],
+    data = [":public.tar"]
+)
