@@ -16,42 +16,50 @@
 /* eslint-disable no-undef, @typescript-eslint/no-unused-vars, no-unused-vars */
 import "./style.css";
 
-// @ts-nocheck TODO(jpoehnelt) remove when fixed
+// This example requires the Geometry library. Include the libraries=geometry
+// parameter when you first load the API. For example:
+// <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=geometry">
 
 function initMap(): void {
   const map = new google.maps.Map(
     document.getElementById("map") as HTMLElement,
     {
-      zoom: 8,
-      center: { lat: -34.397, lng: 150.644 },
+      zoom: 14,
+      center: { lat: 34.366, lng: -89.519 },
     }
   );
-  const geocoder = new google.maps.Geocoder();
+  const poly = new google.maps.Polyline({
+    strokeColor: "#000000",
+    strokeOpacity: 1,
+    strokeWeight: 3,
+    map: map,
+  });
 
-  (document.getElementById("submit") as HTMLButtonElement).addEventListener(
-    "click",
-    () => {
-      geocodeAddress(geocoder, map);
-    }
-  );
+  // Add a listener for the click event
+  google.maps.event.addListener(map, "click", (event) => {
+    addLatLngToPoly(event.latLng, poly);
+  });
 }
 
-function geocodeAddress(
-  geocoder: google.maps.Geocoder,
-  resultsMap: google.maps.Map
+/**
+ * Handles click events on a map, and adds a new point to the Polyline.
+ * Updates the encoding text area with the path's encoded values.
+ */
+function addLatLngToPoly(
+  latLng: google.maps.LatLng,
+  poly: google.maps.Polyline
 ) {
-  const address = (document.getElementById("address") as HTMLInputElement)
-    .value;
-  geocoder.geocode({ address: address }, (results, status) => {
-    if (status === "OK") {
-      resultsMap.setCenter(results[0].geometry.location);
-      new google.maps.Marker({
-        map: resultsMap,
-        position: results[0].geometry.location,
-      });
-    } else {
-      alert("Geocode was not successful for the following reason: " + status);
-    }
-  });
+  const path = poly.getPath();
+  // Because path is an MVCArray, we can simply append a new coordinate
+  // and it will automatically appear
+  path.push(latLng);
+
+  // Update the text field to display the polyline encodings
+  const encodeString = google.maps.geometry.encoding.encodePath(path);
+
+  if (encodeString) {
+    (document.getElementById("encoded-polyline") as HTMLInputElement).value =
+      encodeString;
+  }
 }
 export { initMap };
