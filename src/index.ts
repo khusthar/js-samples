@@ -16,21 +16,106 @@
 /* eslint-disable no-undef, @typescript-eslint/no-unused-vars, no-unused-vars */
 import "./style.css";
 
+// @ts-nocheck TODO(jpoehnelt) remove when fixed
+
 function initMap(): void {
-  const locationRio = { lat: -22.915, lng: -43.197 };
+  const bounds = new google.maps.LatLngBounds();
+  const markersArray: google.maps.Marker[] = [];
+
+  const origin1 = { lat: 55.93, lng: -3.118 };
+  const origin2 = "Greenwich, England";
+  const destinationA = "Stockholm, Sweden";
+  const destinationB = { lat: 50.087, lng: 14.421 };
+
+  const destinationIcon =
+    "https://chart.googleapis.com/chart?" +
+    "chst=d_map_pin_letter&chld=D|FF0000|000000";
+  const originIcon =
+    "https://chart.googleapis.com/chart?" +
+    "chst=d_map_pin_letter&chld=O|FFFF00|000000";
   const map = new google.maps.Map(
     document.getElementById("map") as HTMLElement,
     {
-      zoom: 13,
-      center: locationRio,
-      gestureHandling: "none",
-      zoomControl: false,
+      center: { lat: 55.53, lng: 9.4 },
+      zoom: 10,
     }
   );
-  new google.maps.Marker({
-    position: locationRio,
-    map,
-    title: "Hello World!",
-  });
+  const geocoder = new google.maps.Geocoder();
+
+  const service = new google.maps.DistanceMatrixService();
+  service.getDistanceMatrix(
+    {
+      origins: [origin1, origin2],
+      destinations: [destinationA, destinationB],
+      travelMode: google.maps.TravelMode.DRIVING,
+      unitSystem: google.maps.UnitSystem.METRIC,
+      avoidHighways: false,
+      avoidTolls: false,
+    },
+    (response, status) => {
+      if (status !== "OK") {
+        alert("Error was: " + status);
+      } else {
+        const originList = response.originAddresses;
+        const destinationList = response.destinationAddresses;
+        const outputDiv = document.getElementById("output") as HTMLDivElement;
+        outputDiv.innerHTML = "";
+        deleteMarkers(markersArray);
+
+        const showGeocodedAddressOnMap = function (asDestination: boolean) {
+          const icon = asDestination ? destinationIcon : originIcon;
+
+          return function (
+            results: google.maps.GeocoderResult[],
+            status: google.maps.GeocoderStatus
+          ) {
+            if (status === "OK") {
+              map.fitBounds(bounds.extend(results[0].geometry.location));
+              markersArray.push(
+                new google.maps.Marker({
+                  map,
+                  position: results[0].geometry.location,
+                  icon: icon,
+                })
+              );
+            } else {
+              alert("Geocode was not successful due to: " + status);
+            }
+          };
+        };
+
+        for (let i = 0; i < originList.length; i++) {
+          const results = response.rows[i].elements;
+          geocoder.geocode(
+            { address: originList[i] },
+            showGeocodedAddressOnMap(false)
+          );
+
+          for (let j = 0; j < results.length; j++) {
+            geocoder.geocode(
+              { address: destinationList[j] },
+              showGeocodedAddressOnMap(true)
+            );
+            outputDiv.innerHTML +=
+              originList[i] +
+              " to " +
+              destinationList[j] +
+              ": " +
+              results[j].distance.text +
+              " in " +
+              results[j].duration.text +
+              "<br>";
+          }
+        }
+      }
+    }
+  );
+}
+
+function deleteMarkers(markersArray: google.maps.Marker[]) {
+  for (let i = 0; i < markersArray.length; i++) {
+    markersArray[i].setMap(null);
+  }
+  markersArray = [];
 }
 export { initMap };
