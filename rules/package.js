@@ -56,13 +56,20 @@ async function main(argv) {
     version: "1.0.0",
     description: "Sample for Google Maps Platform JavaScript",
     author: "Justin Poehnelt <jpoehnelt@google.com>",
-    dependencies,
-    devDependencies,
     scripts: {
       build: "webpack --config ./webpack.config.js --mode production",
       start: "webpack serve --config  ./webpack.config.js --mode development",
     },
   };
+
+  // avoid churn in git since npm removes empty dependencies
+  if (Object.keys(dependencies).length > 0) {
+    data.dependencies = dependencies;
+  }
+  // avoid churn in git since npm removes empty dependencies
+  if (Object.keys(devDependencies).length > 0) {
+    data.devDependencies = devDependencies;
+  }
 
   // console.log(data);
 

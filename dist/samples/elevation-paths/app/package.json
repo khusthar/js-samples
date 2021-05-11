@@ -18,7 +18,6 @@
     "build": "webpack --config ./webpack.config.js --mode production",
     "start": "webpack serve --config  ./webpack.config.js --mode development"
   },
-  "dependencies": {},
   "devDependencies": {
     "@types/google.maps": "^3.44.3",
     "@types/google.visualization": "0.0.60",
