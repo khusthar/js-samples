@@ -16,41 +16,34 @@
 /* eslint-disable no-undef, @typescript-eslint/no-unused-vars, no-unused-vars */
 import "./style.css";
 
-// This example adds a UI control allowing users to remove the polyline from the
-// map.
-
-let flightPath: google.maps.Polyline;
-let map: google.maps.Map;
+// This example creates a 2-pixel-wide red polyline showing the path of
+// the first trans-Pacific flight between Oakland, CA, and Brisbane,
+// Australia which was made by Charles Kingsford Smith.
 
 function initMap(): void {
-  map = new google.maps.Map(document.getElementById("map") as HTMLElement, {
-    zoom: 3,
-    center: { lat: 0, lng: -180 },
-    mapTypeId: "terrain",
-  });
+  const map = new google.maps.Map(
+    document.getElementById("map") as HTMLElement,
+    {
+      zoom: 3,
+      center: { lat: 0, lng: -180 },
+      mapTypeId: "terrain",
+    }
+  );
 
-  const flightPathCoordinates: google.maps.LatLngLiteral[] = [
+  const flightPlanCoordinates = [
     { lat: 37.772, lng: -122.214 },
     { lat: 21.291, lng: -157.821 },
     { lat: -18.142, lng: 178.431 },
     { lat: -27.467, lng: 153.027 },
   ];
-
-  flightPath = new google.maps.Polyline({
-    path: flightPathCoordinates,
+  const flightPath = new google.maps.Polyline({
+    path: flightPlanCoordinates,
+    geodesic: true,
     strokeColor: "#FF0000",
     strokeOpacity: 1.0,
     strokeWeight: 2,
   });
 
-  addLine();
-}
-
-function addLine() {
   flightPath.setMap(map);
 }
-
-function removeLine() {
-  flightPath.setMap(null);
-}
-export { initMap, addLine, removeLine };
+export { initMap };
