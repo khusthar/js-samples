@@ -1,1 +1,0 @@
-{"node_modules":"/usr/local/google/home/jpoehnelt/github/googlemaps/js-samples/node_modules","deps":["webpack","webpack-cli"],"out":"/usr/local/google/home/jpoehnelt/github/googlemaps/js-samples/delete.txt","dependencies":{"webpack":"5.36.2","webpack-cli":"4.6.0"}}
