@@ -1,15 +1,14 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Marker Animations With setTimeout()</title>
+    <title>Marker Clustering</title>
     <script src="https://polyfill.io/v3/polyfill.min.js?features=default"></script>
+    <script src="https://unpkg.com/@google/markerclustererplus@4.0.1/dist/markerclustererplus.min.js"></script>
+
     <link rel="stylesheet" type="text/css" href="./style.css" />
     <script src="./index.js"></script>
   </head>
   <body>
-    <div id="floating-panel">
-      <button id="drop" onclick="drop()">Drop Markers</button>
-    </div>
     <div id="map"></div>
 
     <!-- Async script executes immediately and must be after any DOM elements used in callback. -->
