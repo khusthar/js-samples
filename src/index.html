@@ -1,25 +1,18 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Programmatically Load Google Maps JS</title>
+    <title>Listening to Events</title>
     <script src="https://polyfill.io/v3/polyfill.min.js?features=default"></script>
-    <!-- Use Material Design Button CSS-->
-    <link
-      href="https://unpkg.com/material-components-web@6.0.0/dist/material-components-web.css"
-      rel="stylesheet"
-    />
-    <script src="https://unpkg.com/@googlemaps/js-api-loader@^1.2.0/dist/index.min.js"></script>
-
     <link rel="stylesheet" type="text/css" href="./style.css" />
     <script src="./index.js"></script>
   </head>
   <body>
-    <div id="map">
-      <div id="wrapper">
-        <button id="load_map_button" class="mdc-button mdc-button--raised">
-          Load Dynamic Map
-        </button>
-      </div>
-    </div>
+    <div id="map"></div>
+
+    <!-- Async script executes immediately and must be after any DOM elements used in callback. -->
+    <script
+      src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&callback=initMap&libraries=&v=weekly"
+      async
+    ></script>
   </body>
 </html>
