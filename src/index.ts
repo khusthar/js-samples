@@ -20,23 +20,13 @@ let map: google.maps.Map;
 
 function initMap(): void {
   map = new google.maps.Map(document.getElementById("map") as HTMLElement, {
-    center: { lat: 20, lng: -160 },
-    zoom: 2,
+    zoom: 4,
+    center: { lat: -28, lng: 137 },
   });
 
-  // Get the earthquake data (JSONP format)
-  // This feed is a copy from the USGS feed, you can find the originals here:
-  //   http://earthquake.usgs.gov/earthquakes/feed/v1.0/geojson.php
-  const script = document.createElement("script");
-  script.setAttribute(
-    "src",
-    "https://storage.googleapis.com/mapsdevsite/json/quakes.geo.json"
+  // NOTE: This uses cross-domain XHR, and may not work on older browsers.
+  map.data.loadGeoJson(
+    "https://storage.googleapis.com/mapsdevsite/json/google.json"
   );
-  document.getElementsByTagName("head")[0].appendChild(script);
 }
-
-// Defines the callback function referenced in the jsonp file.
-function eqfeed_callback(data: any) {
-  map.data.addGeoJson(data);
-}
-export { initMap, eqfeed_callback };
+export { initMap };
