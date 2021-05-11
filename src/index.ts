@@ -15,79 +15,39 @@
  */
 /* eslint-disable no-undef, @typescript-eslint/no-unused-vars, no-unused-vars */
 import "./style.css";
-// eslint-disable no-undef
-let map: google.maps.Map;
 
-// Initialize and add the map
+// In the following example, markers appear when the user clicks on the map.
+// Each marker is labeled with a single alphabetical character.
+const labels = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+let labelIndex = 0;
+
 function initMap(): void {
-  let markers: google.maps.Marker[] = [];
-
-  // @ts-ignore Beta functionality
-  let collisionBehavior = google.maps.CollisionBehavior.REQUIRED;
-
-  map = new google.maps.Map(
+  const bangalore = { lat: 12.97, lng: 77.59 };
+  const map = new google.maps.Map(
     document.getElementById("map") as HTMLElement,
     {
-      mapId: "3a3b33f0edd6ed2a",
-      center: { lat: 47.609414458375674, lng: -122.33897030353548 },
-      zoom: 17,
-    } as google.maps.MapOptions
+      zoom: 12,
+      center: bangalore,
+    }
   );
 
-  const menuList = document.querySelector(".mdc-list") as HTMLUListElement;
-
-  // Add the behaviors to the select options
-  // @ts-ignore Beta functionality
-  for (const [key, value] of Object.entries(google.maps.CollisionBehavior)) {
-    const item = document.createElement("LI");
-    item.classList.add("mdc-list-item");
-    item.setAttribute("data-value", key);
-
-    const itemText = document.createElement("SPAN") as HTMLSpanElement;
-    itemText.classList.add("mdc-list-item__text");
-    itemText.innerText = value as string;
-
-    item.appendChild(itemText);
-    menuList.appendChild(item);
-  }
-
-  // @ts-ignore
-  const select = new mdc.select.MDCSelect(
-    document.querySelector(".mdc-select") as HTMLElement
-  );
-
-  select.listen("MDCSelect:change", () => {
-    collisionBehavior = select.value;
-    markers.forEach((marker) => {
-      marker.set("collisionBehavior", collisionBehavior);
-    });
+  // This event listener calls addMarker() when the map is clicked.
+  google.maps.event.addListener(map, "click", (event) => {
+    addMarker(event.latLng, map);
   });
 
-  select.value = collisionBehavior;
+  // Add a marker at the center of the map.
+  addMarker(bangalore, map);
+}
 
-  // Create some markers on the map
-  markers = [
-    [-122.3402, 47.6093],
-    [-122.3402, 47.6094],
-    [-122.3403, 47.6094],
-    [-122.3384, 47.6098],
-    [-122.3389, 47.6095],
-    [-122.3396, 47.6095],
-    [-122.3379, 47.6097],
-    [-122.3378, 47.6097],
-    [-122.3396, 47.6091],
-    [-122.3383, 47.6089],
-    [-122.3379, 47.6093],
-    [-122.3381, 47.6095],
-    [-122.3378, 47.6095],
-  ].map(
-    ([lng, lat]: number[], i: number) =>
-      new google.maps.Marker({
-        position: new google.maps.LatLng({ lat, lng }),
-        map,
-        zIndex: i,
-        collisionBehavior: collisionBehavior,
-      } as google.maps.MarkerOptions)
-  );
+// Adds a marker to the map.
+function addMarker(location: google.maps.LatLngLiteral, map: google.maps.Map) {
+  // Add the marker at the clicked location, and add the next-available label
+  // from the array of alphabetical characters.
+  new google.maps.Marker({
+    position: location,
+    label: labels[labelIndex++ % labels.length],
+    map: map,
+  });
 }
 export { initMap };
