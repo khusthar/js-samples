@@ -15,29 +15,59 @@
  */
 /* eslint-disable no-undef, @typescript-eslint/no-unused-vars, no-unused-vars */
 import "./style.css";
+/**
+ * Creates a series of custom controls to demonstrate positioning
+ * of controls within a map.
+ */
 
-function initMap(): void {
-  const map = new google.maps.Map(
-    document.getElementById("map") as HTMLElement,
-    {
-      zoom: 12,
-      center: { lat: -28.643387, lng: 153.612224 },
-      mapTypeControl: true,
-      mapTypeControlOptions: {
-        style: google.maps.MapTypeControlStyle.HORIZONTAL_BAR,
-        position: google.maps.ControlPosition.TOP_CENTER,
-      },
-      zoomControl: true,
-      zoomControlOptions: {
-        position: google.maps.ControlPosition.LEFT_CENTER,
-      },
-      scaleControl: true,
-      streetViewControl: true,
-      streetViewControlOptions: {
-        position: google.maps.ControlPosition.LEFT_TOP,
-      },
-      fullscreenControl: true,
-    }
-  );
+/**
+ * MakeControl adds a control to the map.
+ * This constructor takes the controlDIV name and label text as arguments.
+ */
+function MakeControl(controlDiv: HTMLElement, label: string) {
+  // Set up the control border.
+  const controlUI = document.createElement("div");
+  controlUI.title = label;
+  controlUI.className = "controlUI";
+  controlDiv.appendChild(controlUI);
+
+  // Set up the inner control.
+  const controlText = document.createElement("div");
+  controlText.innerHTML = label;
+  controlText.className = "controlText";
+  controlUI.appendChild(controlText);
 }
-export { initMap };
+
+function initialize() {
+  const mapDiv = document.getElementById("map") as HTMLElement;
+  const mapOptions = {
+    zoom: 11,
+    center: { lat: 47.46, lng: -122.52 },
+    disableDefaultUI: true,
+  };
+  const map = new google.maps.Map(mapDiv, mapOptions);
+
+  const controlText = [
+    ["TOP_LEFT", google.maps.ControlPosition.TOP_LEFT],
+    ["LEFT_TOP", google.maps.ControlPosition.LEFT_TOP],
+    ["TOP_CENTER", google.maps.ControlPosition.TOP_CENTER],
+    ["TOP_RIGHT", google.maps.ControlPosition.TOP_RIGHT],
+    ["RIGHT_TOP", google.maps.ControlPosition.RIGHT_TOP],
+    ["LEFT_CENTER", google.maps.ControlPosition.LEFT_CENTER],
+    ["RIGHT_CENTER", google.maps.ControlPosition.RIGHT_CENTER],
+    ["BOTTOM_LEFT", google.maps.ControlPosition.BOTTOM_LEFT],
+    ["LEFT_BOTTOM", google.maps.ControlPosition.LEFT_BOTTOM],
+    ["BOTTOM_CENTER", google.maps.ControlPosition.BOTTOM_CENTER],
+    ["BOTTOM_RIGHT", google.maps.ControlPosition.BOTTOM_RIGHT],
+    ["RIGHT_BOTTOM", google.maps.ControlPosition.RIGHT_BOTTOM],
+  ];
+
+  for (let i = 0; i < controlText.length; i++) {
+    const divLabel = controlText[i][0] as string;
+    const divName = document.createElement("div");
+    MakeControl(divName, divLabel);
+    // @ts-ignore
+    map.controls[controlText[i][1]].push(divName);
+  }
+}
+export { initialize };
