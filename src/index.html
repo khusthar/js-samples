@@ -1,55 +1,64 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Place Autocomplete</title>
+    <title>Place Autocomplete Address Form</title>
     <script src="https://polyfill.io/v3/polyfill.min.js?features=default"></script>
+    <link
+      href="https://fonts.googleapis.com/css?family=Roboto:400,500"
+      rel="stylesheet"
+    />
+
     <link rel="stylesheet" type="text/css" href="./style.css" />
     <script src="./index.js"></script>
   </head>
   <body>
-    <div class="pac-card" id="pac-card">
-      <div>
-        <div id="title">Autocomplete search</div>
-        <div id="type-selector" class="pac-controls">
-          <input
-            type="radio"
-            name="type"
-            id="changetype-all"
-            checked="checked"
-          />
-          <label for="changetype-all">All</label>
+    <!-- Note: The address components in this sample are based on North American address format. You might need to adjust them for the locations relevant to your app. For more information, see
+https://developers.google.com/maps/documentation/javascript/examples/places-autocomplete-addressform
+    -->
 
-          <input type="radio" name="type" id="changetype-establishment" />
-          <label for="changetype-establishment">Establishments</label>
+    <form id="address-form" action="" method="get" autocomplete="off">
+      <p class="title">Sample address form for North America</p>
+      <p class="note"><em>* = required field</em></p>
+      <label class="full-field">
+        <!-- Avoid the word "address" in id, name, or label text to avoid browser autofill from conflicting with Place Autocomplete. Star or comment bug https://crbug.com/587466 to request Chromium to honor autocomplete="off" attribute. -->
+        <span class="form-label">Deliver to*</span>
+        <input
+          id="ship-address"
+          name="ship-address"
+          required
+          autocomplete="off"
+        />
+      </label>
+      <label class="full-field">
+        <span class="form-label">Apartment, unit, suite, or floor #</span>
+        <input id="address2" name="address2" />
+      </label>
+      <label class="full-field">
+        <span class="form-label">City*</span>
+        <input id="locality" name="locality" required />
+      </label>
+      <label class="slim-field-left">
+        <span class="form-label">State/Province*</span>
+        <input id="state" name="state" required />
+      </label>
+      <label class="slim-field-right" for="postal_code">
+        <span class="form-label">Postal code*</span>
+        <input id="postcode" name="postcode" required />
+      </label>
+      <label class="full-field">
+        <span class="form-label">Country/Region*</span>
+        <input id="country" name="country" required />
+      </label>
+      <button type="button" class="my-button">Save address</button>
 
-          <input type="radio" name="type" id="changetype-address" />
-          <label for="changetype-address">Addresses</label>
-
-          <input type="radio" name="type" id="changetype-geocode" />
-          <label for="changetype-geocode">Geocodes</label>
-        </div>
-        <br />
-        <div id="strict-bounds-selector" class="pac-controls">
-          <input type="checkbox" id="use-location-bias" value="" checked />
-          <label for="use-location-bias">Bias to map viewport</label>
-
-          <input type="checkbox" id="use-strict-bounds" value="" />
-          <label for="use-strict-bounds">Strict bounds</label>
-        </div>
-      </div>
-      <div id="pac-container">
-        <input id="pac-input" type="text" placeholder="Enter a location" />
-      </div>
-    </div>
-    <div id="map"></div>
-    <div id="infowindow-content">
-      <span id="place-name" class="title"></span><br />
-      <span id="place-address"></span>
-    </div>
+      <!-- Reset button provided for development testing convenience.
+  Not recommended for user-facing forms due to risk of mis-click when aiming for Submit button. -->
+      <input type="reset" value="Clear form" />
+    </form>
 
     <!-- Async script executes immediately and must be after any DOM elements used in callback. -->
     <script
-      src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&callback=initMap&libraries=places&v=weekly"
+      src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&callback=initAutocomplete&libraries=places&v=weekly"
       async
     ></script>
   </body>
