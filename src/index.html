@@ -1,13 +1,22 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Rectangle Zoom</title>
+    <title>Split Map Panes</title>
     <script src="https://polyfill.io/v3/polyfill.min.js?features=default"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/split.js/1.5.11/split.min.js"></script>
+
     <link rel="stylesheet" type="text/css" href="./style.css" />
     <script src="./index.js"></script>
   </head>
   <body>
-    <div id="map"></div>
+    <div id="container">
+      <div id="left">
+        <div id="map-left" class="map"></div>
+      </div>
+      <div id="right">
+        <div id="map-right" class="map"></div>
+      </div>
+    </div>
 
     <!-- Async script executes immediately and must be after any DOM elements used in callback. -->
     <script
