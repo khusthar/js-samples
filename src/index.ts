@@ -16,25 +16,34 @@
 /* eslint-disable no-undef, @typescript-eslint/no-unused-vars, no-unused-vars */
 import "./style.css";
 
-function initMap(): void {
-  const map = new google.maps.Map(
-    document.getElementById("map") as HTMLElement,
-    {
-      zoom: 4,
-      center: { lat: -25.363882, lng: 131.044922 },
-    }
-  );
+function initMap() {
+  const myLatlng = { lat: -25.363, lng: 131.044 };
 
-  map.addListener("click", (e) => {
-    placeMarkerAndPanTo(e.latLng, map);
+  const map = new google.maps.Map(document.getElementById("map")!, {
+    zoom: 4,
+    center: myLatlng,
   });
-}
 
-function placeMarkerAndPanTo(latLng: google.maps.LatLng, map: google.maps.Map) {
-  new google.maps.Marker({
-    position: latLng,
-    map: map,
+  // Create the initial InfoWindow.
+  let infoWindow = new google.maps.InfoWindow({
+    content: "Click the map to get Lat/Lng!",
+    position: myLatlng,
   });
-  map.panTo(latLng);
+  infoWindow.open(map);
+
+  // Configure the click listener.
+  map.addListener("click", (mapsMouseEvent) => {
+    // Close the current InfoWindow.
+    infoWindow.close();
+
+    // Create a new InfoWindow.
+    infoWindow = new google.maps.InfoWindow({
+      position: mapsMouseEvent.latLng,
+    });
+    infoWindow.setContent(
+      JSON.stringify(mapsMouseEvent.latLng.toJSON(), null, 2)
+    );
+    infoWindow.open(map);
+  });
 }
 export { initMap };
