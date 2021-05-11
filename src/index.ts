@@ -23,53 +23,35 @@ function initMap(): void {
     document.getElementById("map") as HTMLElement,
     {
       zoom: 8,
-      center: { lat: 40.731, lng: -73.997 },
+      center: { lat: -34.397, lng: 150.644 },
     }
   );
   const geocoder = new google.maps.Geocoder();
-  const infowindow = new google.maps.InfoWindow();
 
-  (document.getElementById("submit") as HTMLElement).addEventListener(
+  (document.getElementById("submit") as HTMLButtonElement).addEventListener(
     "click",
     () => {
-      geocodeLatLng(geocoder, map, infowindow);
+      geocodeAddress(geocoder, map);
     }
   );
 }
 
-function geocodeLatLng(
+function geocodeAddress(
   geocoder: google.maps.Geocoder,
-  map: google.maps.Map,
-  infowindow: google.maps.InfoWindow
+  resultsMap: google.maps.Map
 ) {
-  const input = (document.getElementById("latlng") as HTMLInputElement).value;
-  const latlngStr = input.split(",", 2);
-  const latlng = {
-    lat: parseFloat(latlngStr[0]),
-    lng: parseFloat(latlngStr[1]),
-  };
-  geocoder.geocode(
-    { location: latlng },
-    (
-      results: google.maps.GeocoderResult[],
-      status: google.maps.GeocoderStatus
-    ) => {
-      if (status === "OK") {
-        if (results[0]) {
-          map.setZoom(11);
-          const marker = new google.maps.Marker({
-            position: latlng,
-            map: map,
-          });
-          infowindow.setContent(results[0].formatted_address);
-          infowindow.open(map, marker);
-        } else {
-          window.alert("No results found");
-        }
-      } else {
-        window.alert("Geocoder failed due to: " + status);
-      }
+  const address = (document.getElementById("address") as HTMLInputElement)
+    .value;
+  geocoder.geocode({ address: address }, (results, status) => {
+    if (status === "OK") {
+      resultsMap.setCenter(results[0].geometry.location);
+      new google.maps.Marker({
+        map: resultsMap,
+        position: results[0].geometry.location,
+      });
+    } else {
+      alert("Geocode was not successful for the following reason: " + status);
     }
-  );
+  });
 }
 export { initMap };
