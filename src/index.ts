@@ -16,34 +16,50 @@
 /* eslint-disable no-undef, @typescript-eslint/no-unused-vars, no-unused-vars */
 import "./style.css";
 
-function initMap(): void {
-  const myLatlng = { lat: -25.363, lng: 131.044 };
+// @ts-nocheck TODO(jpoehnelt) remove when fixed
 
+function initMap(): void {
+  const geocoder = new google.maps.Geocoder();
   const map = new google.maps.Map(
     document.getElementById("map") as HTMLElement,
     {
-      zoom: 4,
-      center: myLatlng,
+      zoom: 8,
+      center: { lat: -33.865, lng: 151.209 },
     }
   );
 
-  const marker = new google.maps.Marker({
-    position: myLatlng,
-    map,
-    title: "Click to zoom",
-  });
+  (document.getElementById("submit") as HTMLElement).addEventListener(
+    "click",
+    () => {
+      geocodeAddress(geocoder, map);
+    }
+  );
+}
 
-  map.addListener("center_changed", () => {
-    // 3 seconds after the center of the map has changed, pan back to the
-    // marker.
-    window.setTimeout(() => {
-      map.panTo(marker.getPosition() as google.maps.LatLng);
-    }, 3000);
-  });
-
-  marker.addListener("click", () => {
-    map.setZoom(8);
-    map.setCenter(marker.getPosition() as google.maps.LatLng);
-  });
+function geocodeAddress(geocoder: google.maps.Geocoder, map: google.maps.Map) {
+  geocoder.geocode(
+    {
+      componentRestrictions: {
+        country: "AU",
+        postalCode: "2000",
+      },
+    },
+    (
+      results: google.maps.GeocoderResult[],
+      status: google.maps.GeocoderStatus
+    ) => {
+      if (status === "OK") {
+        map.setCenter(results[0].geometry.location);
+        new google.maps.Marker({
+          map,
+          position: results[0].geometry.location,
+        });
+      } else {
+        window.alert(
+          "Geocode was not successful for the following reason: " + status
+        );
+      }
+    }
+  );
 }
 export { initMap };
