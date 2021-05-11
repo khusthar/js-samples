@@ -16,7 +16,9 @@
 /* eslint-disable no-undef, @typescript-eslint/no-unused-vars, no-unused-vars */
 import "./style.css";
 
-// This example adds three custom symbols to a polyline.
+// This example converts a polyline to a dashed line, by
+// setting the opacity of the polyline to 0, and drawing an opaque symbol
+// at a regular interval on the polyline.
 
 function initMap(): void {
   const map = new google.maps.Map(
@@ -28,46 +30,27 @@ function initMap(): void {
     }
   );
 
-  // Define the custom symbols. All symbols are defined via SVG path notation.
-  // They have varying stroke color, fill color, stroke weight,
-  // opacity and rotation properties.
-  const symbolOne = {
-    path: "M -2,0 0,-2 2,0 0,2 z",
-    strokeColor: "#F00",
-    fillColor: "#F00",
-    fillOpacity: 1,
+  // Define a symbol using SVG path notation, with an opacity of 1.
+  const lineSymbol = {
+    path: "M 0,-1 0,1",
+    strokeOpacity: 1,
+    scale: 4,
   };
 
-  const symbolTwo = {
-    path: "M -1,0 A 1,1 0 0 0 -3,0 1,1 0 0 0 -1,0M 1,0 A 1,1 0 0 0 3,0 1,1 0 0 0 1,0M -3,3 Q 0,5 3,3",
-    strokeColor: "#00F",
-    rotation: 45,
-  };
-
-  const symbolThree = {
-    path: "M -2,-2 2,2 M 2,-2 -2,2",
-    strokeColor: "#292",
-    strokeWeight: 4,
-  };
-
-  // Create the polyline and add the symbols via the 'icons' property.
+  // Create the polyline, passing the symbol in the 'icons' property.
+  // Give the line an opacity of 0.
+  // Repeat the symbol at intervals of 20 pixels to create the dashed effect.
   const line = new google.maps.Polyline({
     path: [
       { lat: 22.291, lng: 153.027 },
       { lat: 18.291, lng: 153.027 },
     ],
+    strokeOpacity: 0,
     icons: [
       {
-        icon: symbolOne,
-        offset: "0%",
-      },
-      {
-        icon: symbolTwo,
-        offset: "50%",
-      },
-      {
-        icon: symbolThree,
-        offset: "100%",
+        icon: lineSymbol,
+        offset: "0",
+        repeat: "20px",
       },
     ],
     map: map,
