@@ -16,65 +16,31 @@
 /* eslint-disable no-undef, @typescript-eslint/no-unused-vars, no-unused-vars */
 import "./style.css";
 
-// This example adds a user-editable rectangle to the map.
-// When the user changes the bounds of the rectangle,
-// an info window pops up displaying the new bounds.
-
-let rectangle: google.maps.Rectangle;
-let map: google.maps.Map;
-
-let infoWindow: google.maps.InfoWindow;
+// This example adds a red rectangle to a map.
 
 function initMap(): void {
-  map = new google.maps.Map(document.getElementById("map") as HTMLElement, {
-    center: { lat: 44.5452, lng: -78.5389 },
-    zoom: 9,
+  const map = new google.maps.Map(
+    document.getElementById("map") as HTMLElement,
+    {
+      zoom: 11,
+      center: { lat: 33.678, lng: -116.243 },
+      mapTypeId: "terrain",
+    }
+  );
+
+  const rectangle = new google.maps.Rectangle({
+    strokeColor: "#FF0000",
+    strokeOpacity: 0.8,
+    strokeWeight: 2,
+    fillColor: "#FF0000",
+    fillOpacity: 0.35,
+    map,
+    bounds: {
+      north: 33.685,
+      south: 33.671,
+      east: -116.234,
+      west: -116.251,
+    },
   });
-
-  const bounds = {
-    north: 44.599,
-    south: 44.49,
-    east: -78.443,
-    west: -78.649,
-  };
-
-  // Define the rectangle and set its editable property to true.
-  rectangle = new google.maps.Rectangle({
-    bounds: bounds,
-    editable: true,
-    draggable: true,
-  });
-
-  rectangle.setMap(map);
-
-  // Add an event listener on the rectangle.
-  rectangle.addListener("bounds_changed", showNewRect);
-
-  // Define an info window on the map.
-  infoWindow = new google.maps.InfoWindow();
-}
-
-/** Show the new coordinates for the rectangle in an info window. */
-function showNewRect() {
-  const ne = rectangle.getBounds()!.getNorthEast();
-  const sw = rectangle.getBounds()!.getSouthWest();
-
-  const contentString =
-    "<b>Rectangle moved.</b><br>" +
-    "New north-east corner: " +
-    ne.lat() +
-    ", " +
-    ne.lng() +
-    "<br>" +
-    "New south-west corner: " +
-    sw.lat() +
-    ", " +
-    sw.lng();
-
-  // Set the info window's content and position.
-  infoWindow.setContent(contentString);
-  infoWindow.setPosition(ne);
-
-  infoWindow.open(map);
 }
 export { initMap };
