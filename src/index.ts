@@ -16,99 +16,139 @@
 /* eslint-disable no-undef, @typescript-eslint/no-unused-vars, no-unused-vars */
 import "./style.css";
 
-// This sample uses the Places Autocomplete widget to:
-// 1. Help the user select a place
-// 2. Retrieve the address components associated with that place
-// 3. Populate the form fields with those address components.
-// This sample requires the Places library, Maps JavaScript API.
-// Include the libraries=places parameter when you first load the API.
-// For example: <script
+// This example requires the Places library. Include the libraries=places
+// parameter when you first load the API. For example:
+// <script
 // src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=places">
 
-let autocomplete: google.maps.places.Autocomplete;
-let address1Field: HTMLInputElement;
-let address2Field: HTMLInputElement;
-let postalField: HTMLInputElement;
+function initMap(): void {
+  const map = new google.maps.Map(
+    document.getElementById("map") as HTMLElement,
+    {
+      mapTypeControl: false,
+      center: { lat: -33.8688, lng: 151.2195 },
+      zoom: 13,
+    }
+  );
 
-function initAutocomplete() {
-  address1Field = document.querySelector("#ship-address") as HTMLInputElement;
-  address2Field = document.querySelector("#address2") as HTMLInputElement;
-  postalField = document.querySelector("#postcode") as HTMLInputElement;
-
-  // Create the autocomplete object, restricting the search predictions to
-  // addresses in the US and Canada.
-  autocomplete = new google.maps.places.Autocomplete(address1Field, {
-    componentRestrictions: { country: ["us", "ca"] },
-    fields: ["address_components", "geometry"],
-    types: ["address"],
-  });
-  address1Field.focus();
-
-  // When the user selects an address from the drop-down, populate the
-  // address fields in the form.
-  autocomplete.addListener("place_changed", fillInAddress);
+  new AutocompleteDirectionsHandler(map);
 }
 
-function fillInAddress() {
-  // Get the place details from the autocomplete object.
-  const place = autocomplete.getPlace();
-  let address1 = "";
-  let postcode = "";
+class AutocompleteDirectionsHandler {
+  map: google.maps.Map;
+  originPlaceId: string;
+  destinationPlaceId: string;
+  travelMode: google.maps.TravelMode;
+  directionsService: google.maps.DirectionsService;
+  directionsRenderer: google.maps.DirectionsRenderer;
 
-  // Get each component of the address from the place details,
-  // and then fill-in the corresponding field on the form.
-  // place.address_components are google.maps.GeocoderAddressComponent objects
-  // which are documented at http://goo.gle/3l5i5Mr
-  for (const component of place.address_components as google.maps.GeocoderAddressComponent[]) {
-    // @ts-ignore remove once typings fixed
-    const componentType = component.types[0];
+  constructor(map: google.maps.Map) {
+    this.map = map;
+    this.originPlaceId = "";
+    this.destinationPlaceId = "";
+    this.travelMode = google.maps.TravelMode.WALKING;
+    this.directionsService = new google.maps.DirectionsService();
+    this.directionsRenderer = new google.maps.DirectionsRenderer();
+    this.directionsRenderer.setMap(map);
 
-    switch (componentType) {
-      case "street_number": {
-        address1 = `${component.long_name} ${address1}`;
-        break;
-      }
+    const originInput = document.getElementById(
+      "origin-input"
+    ) as HTMLInputElement;
+    const destinationInput = document.getElementById(
+      "destination-input"
+    ) as HTMLInputElement;
+    const modeSelector = document.getElementById(
+      "mode-selector"
+    ) as HTMLSelectElement;
 
-      case "route": {
-        address1 += component.short_name;
-        break;
-      }
+    const originAutocomplete = new google.maps.places.Autocomplete(originInput);
+    // Specify just the place data fields that you need.
+    originAutocomplete.setFields(["place_id"]);
 
-      case "postal_code": {
-        postcode = `${component.long_name}${postcode}`;
-        break;
-      }
+    const destinationAutocomplete = new google.maps.places.Autocomplete(
+      destinationInput
+    );
+    // Specify just the place data fields that you need.
+    destinationAutocomplete.setFields(["place_id"]);
 
-      case "postal_code_suffix": {
-        postcode = `${postcode}-${component.long_name}`;
-        break;
-      }
+    this.setupClickListener(
+      "changemode-walking",
+      google.maps.TravelMode.WALKING
+    );
+    this.setupClickListener(
+      "changemode-transit",
+      google.maps.TravelMode.TRANSIT
+    );
+    this.setupClickListener(
+      "changemode-driving",
+      google.maps.TravelMode.DRIVING
+    );
 
-      case "locality":
-        (document.querySelector("#locality") as HTMLInputElement).value =
-          component.long_name;
-        break;
+    this.setupPlaceChangedListener(originAutocomplete, "ORIG");
+    this.setupPlaceChangedListener(destinationAutocomplete, "DEST");
 
-      case "administrative_area_level_1": {
-        (document.querySelector("#state") as HTMLInputElement).value =
-          component.short_name;
-        break;
-      }
-
-      case "country":
-        (document.querySelector("#country") as HTMLInputElement).value =
-          component.long_name;
-        break;
-    }
+    this.map.controls[google.maps.ControlPosition.TOP_LEFT].push(originInput);
+    this.map.controls[google.maps.ControlPosition.TOP_LEFT].push(
+      destinationInput
+    );
+    this.map.controls[google.maps.ControlPosition.TOP_LEFT].push(modeSelector);
   }
 
-  address1Field.value = address1;
-  postalField.value = postcode;
+  // Sets a listener on a radio button to change the filter type on Places
+  // Autocomplete.
+  setupClickListener(id: string, mode: google.maps.TravelMode) {
+    const radioButton = document.getElementById(id) as HTMLInputElement;
 
-  // After filling the form with address components from the Autocomplete
-  // prediction, set cursor focus on the second address line to encourage
-  // entry of subpremise information such as apartment, unit, or floor number.
-  address2Field.focus();
+    radioButton.addEventListener("click", () => {
+      this.travelMode = mode;
+      this.route();
+    });
+  }
+
+  setupPlaceChangedListener(
+    autocomplete: google.maps.places.Autocomplete,
+    mode: string
+  ) {
+    autocomplete.bindTo("bounds", this.map);
+
+    autocomplete.addListener("place_changed", () => {
+      const place = autocomplete.getPlace();
+
+      if (!place.place_id) {
+        window.alert("Please select an option from the dropdown list.");
+        return;
+      }
+
+      if (mode === "ORIG") {
+        this.originPlaceId = place.place_id;
+      } else {
+        this.destinationPlaceId = place.place_id;
+      }
+      this.route();
+    });
+  }
+
+  route() {
+    if (!this.originPlaceId || !this.destinationPlaceId) {
+      return;
+    }
+    const me = this;
+
+    this.directionsService.route(
+      {
+        origin: { placeId: this.originPlaceId },
+        destination: { placeId: this.destinationPlaceId },
+        travelMode: this.travelMode,
+      },
+      (response, status) => {
+        if (status === "OK") {
+          me.directionsRenderer.setDirections(response);
+        } else {
+          window.alert("Directions request failed due to " + status);
+        }
+      }
+    );
+  }
 }
 
-export { initAutocomplete };
+export { initMap };
