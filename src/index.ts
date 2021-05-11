@@ -16,27 +16,26 @@
 /* eslint-disable no-undef, @typescript-eslint/no-unused-vars, no-unused-vars */
 import "./style.css";
 
-// This example adds an animated symbol to a polyline.
+// This example adds a predefined symbol (an arrow) to a polyline.
+// Setting offset to 100% places the arrow at the end of the line.
 
 function initMap(): void {
   const map = new google.maps.Map(
     document.getElementById("map") as HTMLElement,
     {
-      center: { lat: 20.291, lng: 153.027 },
       zoom: 6,
+      center: { lat: 20.291, lng: 153.027 },
       mapTypeId: "terrain",
     }
   );
 
-  // Define the symbol, using one of the predefined paths ('CIRCLE')
+  // Define a symbol using a predefined path (an arrow)
   // supplied by the Google Maps JavaScript API.
   const lineSymbol = {
-    path: google.maps.SymbolPath.CIRCLE,
-    scale: 8,
-    strokeColor: "#393",
+    path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW,
   };
 
-  // Create the polyline and add the symbol to it via the 'icons' property.
+  // Create the polyline and add the symbol via the 'icons' property.
   const line = new google.maps.Polyline({
     path: [
       { lat: 22.291, lng: 153.027 },
@@ -50,20 +49,5 @@ function initMap(): void {
     ],
     map: map,
   });
-
-  animateCircle(line);
-}
-
-// Use the DOM setInterval() function to change the offset of the symbol
-// at fixed intervals.
-function animateCircle(line: google.maps.Polyline) {
-  let count = 0;
-  window.setInterval(() => {
-    count = (count + 1) % 200;
-
-    const icons = line.get("icons");
-    icons[0].offset = count / 2 + "%";
-    line.set("icons", icons);
-  }, 20);
 }
 export { initMap };
