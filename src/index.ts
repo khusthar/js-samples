@@ -15,70 +15,62 @@
  */
 /* eslint-disable no-undef, @typescript-eslint/no-unused-vars, no-unused-vars */
 import "./style.css";
+const events = [
+  "bounds_changed",
+  "center_changed",
+  "click",
+  "contextmenu",
+  "dblclick",
+  "drag",
+  "dragend",
+  "dragstart",
+  "heading_changed",
+  "idle",
+  "maptypeid_changed",
+  "mousemove",
+  "mouseout",
+  "mouseover",
+  "projection_changed",
+  "resize",
+  "rightclick", // use contextmenu
+  "tilesloaded",
+  "tilt_changed",
+  "zoom_changed",
+];
 
-function initMap(): void {
-  const chicago = new google.maps.LatLng(41.85, -87.65);
-
-  const map = new google.maps.Map(
-    document.getElementById("map") as HTMLElement,
-    {
-      center: chicago,
-      zoom: 3,
-    }
-  );
-
-  const coordInfoWindow = new google.maps.InfoWindow();
-  coordInfoWindow.setContent(createInfoWindowContent(chicago, map.getZoom()!));
-  coordInfoWindow.setPosition(chicago);
-  coordInfoWindow.open(map);
-
-  map.addListener("zoom_changed", () => {
-    coordInfoWindow.setContent(
-      createInfoWindowContent(chicago, map.getZoom()!)
-    );
-    coordInfoWindow.open(map);
+function setupListener(map: google.maps.Map, name: string) {
+  const eventRow = document.getElementById(name) as HTMLElement;
+  google.maps.event.addListener(map, name, () => {
+    eventRow.className = "event active";
+    const timeout = setTimeout(() => {
+      eventRow.className = "event inactive";
+    }, 1000);
   });
 }
 
-const TILE_SIZE = 256;
+function initMap(): void {
+  populateTable();
+  const mapDiv = document.getElementById("map") as HTMLElement;
+  const map = new google.maps.Map(mapDiv, {
+    center: new google.maps.LatLng(37.4419, -122.1419),
+    zoom: 13,
+    mapTypeId: "roadmap",
+  });
 
-function createInfoWindowContent(latLng: google.maps.LatLng, zoom: number) {
-  const scale = 1 << zoom;
-
-  const worldCoordinate = project(latLng);
-
-  const pixelCoordinate = new google.maps.Point(
-    Math.floor(worldCoordinate.x * scale),
-    Math.floor(worldCoordinate.y * scale)
-  );
-
-  const tileCoordinate = new google.maps.Point(
-    Math.floor((worldCoordinate.x * scale) / TILE_SIZE),
-    Math.floor((worldCoordinate.y * scale) / TILE_SIZE)
-  );
-
-  return [
-    "Chicago, IL",
-    "LatLng: " + latLng,
-    "Zoom level: " + zoom,
-    "World Coordinate: " + worldCoordinate,
-    "Pixel Coordinate: " + pixelCoordinate,
-    "Tile Coordinate: " + tileCoordinate,
-  ].join("<br>");
+  for (let i = 0; i < events.length; i++) {
+    setupListener(map, events[i]);
+  }
 }
 
-// The mapping between latitude, longitude and pixels is defined by the web
-// mercator projection.
-function project(latLng: google.maps.LatLng) {
-  let siny = Math.sin((latLng.lat() * Math.PI) / 180);
+// Dynamically create the table of events from the defined hashmap
+function populateTable() {
+  const eventsTable = document.getElementById("events") as HTMLElement;
+  let content = "";
 
-  // Truncating to 0.9999 effectively limits latitude to 89.189. This is
-  // about a third of a tile past the edge of the world tile.
-  siny = Math.min(Math.max(siny, -0.9999), 0.9999);
-
-  return new google.maps.Point(
-    TILE_SIZE * (0.5 + latLng.lng() / 360),
-    TILE_SIZE * (0.5 - Math.log((1 + siny) / (1 - siny)) / (4 * Math.PI))
-  );
+  for (let i = 0; i < events.length; i++) {
+    content +=
+      '<div class="event" id="' + events[i] + '">' + events[i] + "</div>";
+  }
+  eventsTable.innerHTML = content;
 }
 export { initMap };
