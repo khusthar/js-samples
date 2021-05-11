@@ -16,20 +16,24 @@
 /* eslint-disable no-undef, @typescript-eslint/no-unused-vars, no-unused-vars */
 import "./style.css";
 
+let map: google.maps.Map;
+
+const NEW_ZEALAND_BOUNDS = {
+  north: -34.36,
+  south: -47.35,
+  west: 166.28,
+  east: -175.81,
+};
+const AUCKLAND = { lat: -37.06, lng: 174.58 };
+
 function initMap(): void {
-  const locationRio = { lat: -22.915, lng: -43.197 };
-  const map = new google.maps.Map(
-    document.getElementById("map") as HTMLElement,
-    {
-      zoom: 13,
-      center: locationRio,
-      gestureHandling: "cooperative",
-    }
-  );
-  new google.maps.Marker({
-    position: locationRio,
-    map,
-    title: "Hello World!",
+  map = new google.maps.Map(document.getElementById("map") as HTMLElement, {
+    center: AUCKLAND,
+    restriction: {
+      latLngBounds: NEW_ZEALAND_BOUNDS,
+      strictBounds: false,
+    },
+    zoom: 7,
   });
 }
 export { initMap };
