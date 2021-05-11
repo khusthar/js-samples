@@ -16,83 +16,31 @@
 /* eslint-disable no-undef, @typescript-eslint/no-unused-vars, no-unused-vars */
 import "./style.css";
 
-// This example requires the Geometry library. Include the libraries=geometry
-// parameter when you first load the API. For example:
-// <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=geometry">
+// This example uses a GroundOverlay to place an image on the map
+// showing an antique map of Newark, NJ.
 
-let marker1: google.maps.Marker, marker2: google.maps.Marker;
-let poly: google.maps.Polyline, geodesicPoly: google.maps.Polyline;
+let historicalOverlay;
 
 function initMap(): void {
   const map = new google.maps.Map(
     document.getElementById("map") as HTMLElement,
     {
-      zoom: 4,
-      center: { lat: 34, lng: -40.605 },
+      zoom: 13,
+      center: { lat: 40.74, lng: -74.18 },
     }
   );
 
-  map.controls[google.maps.ControlPosition.TOP_CENTER].push(
-    document.getElementById("info") as HTMLElement
+  const imageBounds = {
+    north: 40.773941,
+    south: 40.712216,
+    east: -74.12544,
+    west: -74.22655,
+  };
+
+  historicalOverlay = new google.maps.GroundOverlay(
+    "https://www.lib.utexas.edu/maps/historical/newark_nj_1922.jpg",
+    imageBounds
   );
-
-  marker1 = new google.maps.Marker({
-    map,
-    draggable: true,
-    position: { lat: 40.714, lng: -74.006 },
-  });
-
-  marker2 = new google.maps.Marker({
-    map,
-    draggable: true,
-    position: { lat: 48.857, lng: 2.352 },
-  });
-
-  const bounds = new google.maps.LatLngBounds(
-    marker1.getPosition() as google.maps.LatLng,
-    marker2.getPosition() as google.maps.LatLng
-  );
-  map.fitBounds(bounds);
-
-  google.maps.event.addListener(marker1, "position_changed", update);
-  google.maps.event.addListener(marker2, "position_changed", update);
-
-  poly = new google.maps.Polyline({
-    strokeColor: "#FF0000",
-    strokeOpacity: 1.0,
-    strokeWeight: 3,
-    map: map,
-  });
-
-  geodesicPoly = new google.maps.Polyline({
-    strokeColor: "#CC0099",
-    strokeOpacity: 1.0,
-    strokeWeight: 3,
-    geodesic: true,
-    map: map,
-  });
-
-  update();
-}
-
-function update() {
-  const path = [
-    marker1.getPosition() as google.maps.LatLng,
-    marker2.getPosition() as google.maps.LatLng,
-  ];
-  poly.setPath(path);
-  geodesicPoly.setPath(path);
-  const heading = google.maps.geometry.spherical.computeHeading(
-    path[0],
-    path[1]
-  );
-  (document.getElementById("heading") as HTMLInputElement).value =
-    String(heading);
-  (document.getElementById("origin") as HTMLInputElement).value = String(
-    path[0]
-  );
-  (document.getElementById("destination") as HTMLInputElement).value = String(
-    path[1]
-  );
+  historicalOverlay.setMap(map);
 }
 export { initMap };
