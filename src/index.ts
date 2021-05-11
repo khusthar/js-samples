@@ -16,89 +16,81 @@
 /* eslint-disable no-undef, @typescript-eslint/no-unused-vars, no-unused-vars */
 import "./style.css";
 
+// This sample uses the Place Autocomplete widget to allow the user to search
+// for and select a place. The sample then displays an info window containing
+// the place ID and other information about the place that the user has
+// selected.
+
 // This example requires the Places library. Include the libraries=places
 // parameter when you first load the API. For example:
 // <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=places">
 
 function initMap(): void {
-  // Create the map.
-  const pyrmont = { lat: -33.866, lng: 151.196 };
   const map = new google.maps.Map(
     document.getElementById("map") as HTMLElement,
     {
-      center: pyrmont,
-      zoom: 17,
-      mapId: "8d193001f940fde3",
-    } as google.maps.MapOptions
+      center: { lat: -33.8688, lng: 151.2195 },
+      zoom: 13,
+    }
   );
 
-  // Create the places service.
-  const service = new google.maps.places.PlacesService(map);
-  let getNextPage: () => void | false;
-  const moreButton = document.getElementById("more") as HTMLButtonElement;
+  const input = document.getElementById("pac-input") as HTMLInputElement;
 
-  moreButton.onclick = function () {
-    moreButton.disabled = true;
+  const autocomplete = new google.maps.places.Autocomplete(input);
+  autocomplete.bindTo("bounds", map);
 
-    if (getNextPage) {
-      getNextPage();
+  // Specify just the place data fields that you need.
+  autocomplete.setFields(["place_id", "geometry", "name"]);
+
+  map.controls[google.maps.ControlPosition.TOP_LEFT].push(input);
+
+  const infowindow = new google.maps.InfoWindow();
+  const infowindowContent = document.getElementById(
+    "infowindow-content"
+  ) as HTMLElement;
+  infowindow.setContent(infowindowContent);
+
+  const marker = new google.maps.Marker({ map: map });
+
+  marker.addListener("click", () => {
+    infowindow.open(map, marker);
+  });
+
+  autocomplete.addListener("place_changed", () => {
+    infowindow.close();
+
+    const place = autocomplete.getPlace();
+
+    if (!place.geometry || !place.geometry.location) {
+      return;
     }
-  };
 
-  // Perform a nearby search.
-  service.nearbySearch(
-    { location: pyrmont, radius: 500, type: "store" },
+    if (place.geometry.viewport) {
+      map.fitBounds(place.geometry.viewport);
+    } else {
+      map.setCenter(place.geometry.location);
+      map.setZoom(17);
+    }
+
+    // Set the position of the marker using the place ID and location.
+    // @ts-ignore This should be in @typings/googlemaps.
+    marker.setPlace({
+      placeId: place.place_id,
+      location: place.geometry.location,
+    });
+
+    marker.setVisible(true);
+
     (
-      results: google.maps.places.PlaceResult[] | null,
-      status: google.maps.places.PlacesServiceStatus,
-      pagination: google.maps.places.PlaceSearchPagination | null
-    ) => {
-      if (status !== "OK" || !results) return;
-
-      addPlaces(results, map);
-      moreButton.disabled = !pagination || !pagination.hasNextPage;
-
-      if (pagination && pagination.hasNextPage) {
-        getNextPage = () => {
-          // Note: nextPage will call the same handler function as the initial call
-          pagination.nextPage();
-        };
-      }
-    }
-  );
-}
-
-function addPlaces(
-  places: google.maps.places.PlaceResult[],
-  map: google.maps.Map
-) {
-  const placesList = document.getElementById("places") as HTMLElement;
-
-  for (const place of places) {
-    if (place.geometry && place.geometry.location) {
-      const image = {
-        url: place.icon!,
-        size: new google.maps.Size(71, 71),
-        origin: new google.maps.Point(0, 0),
-        anchor: new google.maps.Point(17, 34),
-        scaledSize: new google.maps.Size(25, 25),
-      };
-
-      new google.maps.Marker({
-        map,
-        icon: image,
-        title: place.name!,
-        position: place.geometry.location,
-      });
-
-      const li = document.createElement("li");
-      li.textContent = place.name!;
-      placesList.appendChild(li);
-
-      li.addEventListener("click", () => {
-        map.setCenter(place.geometry!.location!);
-      });
-    }
-  }
+      infowindowContent.children.namedItem("place-name") as HTMLElement
+    ).textContent = place.name as string;
+    (
+      infowindowContent.children.namedItem("place-id") as HTMLElement
+    ).textContent = place.place_id as string;
+    (
+      infowindowContent.children.namedItem("place-address") as HTMLElement
+    ).textContent = place.formatted_address as string;
+    infowindow.open(map, marker);
+  });
 }
 export { initMap };
