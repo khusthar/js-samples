@@ -16,62 +16,72 @@
 /* eslint-disable no-undef, @typescript-eslint/no-unused-vars, no-unused-vars */
 import "./style.css";
 
+/*
+ * Click the map to set a new location for the Street View camera.
+ */
+
+let map: google.maps.Map;
+
 let panorama: google.maps.StreetViewPanorama;
 
 function initMap(): void {
-  const astorPlace = { lat: 40.729884, lng: -73.990988 };
+  const berkeley = { lat: 37.869085, lng: -122.254775 };
+  const sv = new google.maps.StreetViewService();
 
-  // Set up the map
-  const map = new google.maps.Map(
-    document.getElementById("map") as HTMLElement,
-    {
-      center: astorPlace,
-      zoom: 18,
-      streetViewControl: false,
-    }
+  panorama = new google.maps.StreetViewPanorama(
+    document.getElementById("pano") as HTMLElement
   );
 
-  // Set up the markers on the map
-  const cafeMarker = new google.maps.Marker({
-    position: { lat: 40.730031, lng: -73.991428 },
-    map,
-    icon: "https://chart.apis.google.com/chart?chst=d_map_pin_icon&chld=cafe|FFFF00",
-    title: "Cafe",
+  // Set up the map.
+  map = new google.maps.Map(document.getElementById("map") as HTMLElement, {
+    center: berkeley,
+    zoom: 16,
+    streetViewControl: false,
   });
 
-  const bankMarker = new google.maps.Marker({
-    position: { lat: 40.729681, lng: -73.991138 },
-    map,
-    icon: "https://chart.apis.google.com/chart?chst=d_map_pin_icon&chld=dollar|FFFF00",
-    title: "Bank",
-  });
+  // Set the initial Street View camera to the center of the map
+  sv.getPanorama({ location: berkeley, radius: 50 }, processSVData);
 
-  const busMarker = new google.maps.Marker({
-    position: { lat: 40.729559, lng: -73.990741 },
-    map,
-    icon: "https://chart.apis.google.com/chart?chst=d_map_pin_icon&chld=bus|FFFF00",
-    title: "Bus Stop",
+  // Look for a nearby Street View panorama when the map is clicked.
+  // getPanorama will return the nearest pano when the given
+  // radius is 50 meters or less.
+  map.addListener("click", (event) => {
+    sv.getPanorama({ location: event.latLng, radius: 50 }, processSVData);
   });
-
-  // We get the map's default panorama and set up some defaults.
-  // Note that we don't yet set it visible.
-  panorama = map.getStreetView()!; // TODO fix type
-  panorama.setPosition(astorPlace);
-  panorama.setPov(
-    /** @type {google.maps.StreetViewPov} */ {
-      heading: 265,
-      pitch: 0,
-    }
-  );
 }
 
-function toggleStreetView() {
-  const toggle = panorama.getVisible();
+function processSVData(
+  data: google.maps.StreetViewPanoramaData | null,
+  status: google.maps.StreetViewStatus
+) {
+  if (status === "OK") {
+    const location = (data as google.maps.StreetViewPanoramaData)
+      .location as google.maps.StreetViewLocation;
+    const marker = new google.maps.Marker({
+      position: location.latLng,
+      map,
+      title: location.description,
+    });
 
-  if (toggle == false) {
+    panorama.setPano(location.pano as string);
+    panorama.setPov({
+      heading: 270,
+      pitch: 0,
+    });
     panorama.setVisible(true);
+
+    marker.addListener("click", () => {
+      const markerPanoID = location.pano;
+      // Set the Pano to use the passed panoID.
+      panorama.setPano(markerPanoID as string);
+      panorama.setPov({
+        heading: 270,
+        pitch: 0,
+      });
+      panorama.setVisible(true);
+    });
   } else {
-    panorama.setVisible(false);
+    console.error("Street View data not found for this location.");
   }
 }
-export { initMap, toggleStreetView };
+export { initMap };
