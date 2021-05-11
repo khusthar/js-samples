@@ -16,27 +16,38 @@
 /* eslint-disable no-undef, @typescript-eslint/no-unused-vars, no-unused-vars */
 import "./style.css";
 
-// This example uses a symbol to add a vector-based icon to a marker.
-// The symbol uses one of the predefined vector paths ('CIRCLE') supplied by the
-// Google Maps JavaScript API.
+let map: google.maps.Map;
+let maxZoomService: google.maps.MaxZoomService;
+let infoWindow: google.maps.InfoWindow;
 
 function initMap(): void {
-  const map = new google.maps.Map(
-    document.getElementById("map") as HTMLElement,
-    {
-      zoom: 4,
-      center: { lat: -25.363882, lng: 131.044922 },
+  map = new google.maps.Map(document.getElementById("map") as HTMLElement, {
+    zoom: 11,
+    center: { lat: 35.6894, lng: 139.692 },
+    mapTypeId: "hybrid",
+  });
+
+  infoWindow = new google.maps.InfoWindow();
+
+  maxZoomService = new google.maps.MaxZoomService();
+
+  map.addListener("click", showMaxZoom);
+}
+
+function showMaxZoom(e: google.maps.MapMouseEvent) {
+  maxZoomService.getMaxZoomAtLatLng(
+    e.latLng,
+    (result: google.maps.MaxZoomResult) => {
+      if (result.status !== "OK") {
+        infoWindow.setContent("Error in MaxZoomService");
+      } else {
+        infoWindow.setContent(
+          "The maximum zoom at this location is: " + result.zoom
+        );
+      }
+      infoWindow.setPosition(e.latLng);
+      infoWindow.open(map);
     }
   );
-
-  new google.maps.Marker({
-    position: map.getCenter(),
-    icon: {
-      path: google.maps.SymbolPath.CIRCLE,
-      scale: 10,
-    },
-    draggable: true,
-    map: map,
-  });
 }
 export { initMap };
