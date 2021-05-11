@@ -21,11 +21,11 @@ function initMap(): void {
     document.getElementById("map") as HTMLElement,
     {
       zoom: 13,
-      center: { lat: 34.04924594193164, lng: -118.24104309082031 },
+      center: { lat: 51.501904, lng: -0.115871 },
     }
   );
 
-  const trafficLayer = new google.maps.TrafficLayer();
-  trafficLayer.setMap(map);
+  const transitLayer = new google.maps.TransitLayer();
+  transitLayer.setMap(map);
 }
 export { initMap };
