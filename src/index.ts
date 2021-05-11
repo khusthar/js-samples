@@ -16,8 +16,7 @@
 /* eslint-disable no-undef, @typescript-eslint/no-unused-vars, no-unused-vars */
 import "./style.css";
 
-// This example adds a predefined symbol (an arrow) to a polyline.
-// Setting offset to 100% places the arrow at the end of the line.
+// This example adds three custom symbols to a polyline.
 
 function initMap(): void {
   const map = new google.maps.Map(
@@ -29,13 +28,29 @@ function initMap(): void {
     }
   );
 
-  // Define a symbol using a predefined path (an arrow)
-  // supplied by the Google Maps JavaScript API.
-  const lineSymbol = {
-    path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW,
+  // Define the custom symbols. All symbols are defined via SVG path notation.
+  // They have varying stroke color, fill color, stroke weight,
+  // opacity and rotation properties.
+  const symbolOne = {
+    path: "M -2,0 0,-2 2,0 0,2 z",
+    strokeColor: "#F00",
+    fillColor: "#F00",
+    fillOpacity: 1,
   };
 
-  // Create the polyline and add the symbol via the 'icons' property.
+  const symbolTwo = {
+    path: "M -1,0 A 1,1 0 0 0 -3,0 1,1 0 0 0 -1,0M 1,0 A 1,1 0 0 0 3,0 1,1 0 0 0 1,0M -3,3 Q 0,5 3,3",
+    strokeColor: "#00F",
+    rotation: 45,
+  };
+
+  const symbolThree = {
+    path: "M -2,-2 2,2 M 2,-2 -2,2",
+    strokeColor: "#292",
+    strokeWeight: 4,
+  };
+
+  // Create the polyline and add the symbols via the 'icons' property.
   const line = new google.maps.Polyline({
     path: [
       { lat: 22.291, lng: 153.027 },
@@ -43,7 +58,15 @@ function initMap(): void {
     ],
     icons: [
       {
-        icon: lineSymbol,
+        icon: symbolOne,
+        offset: "0%",
+      },
+      {
+        icon: symbolTwo,
+        offset: "50%",
+      },
+      {
+        icon: symbolThree,
         offset: "100%",
       },
     ],
