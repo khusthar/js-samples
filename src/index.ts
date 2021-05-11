@@ -16,38 +16,56 @@
 /* eslint-disable no-undef, @typescript-eslint/no-unused-vars, no-unused-vars */
 import "./style.css";
 
-// This example creates a simple polygon representing the Bermuda Triangle. Note
-// that the code specifies only three LatLng coordinates for the polygon. The
-// API automatically draws a stroke connecting the last LatLng back to the first
-// LatLng.
+// This example creates draggable triangles on the map.
+// Note also that the red triangle is geodesic, so its shape changes
+// as you drag it north or south.
 
 function initMap(): void {
   const map = new google.maps.Map(
     document.getElementById("map") as HTMLElement,
     {
-      zoom: 5,
+      zoom: 1,
       center: { lat: 24.886, lng: -70.268 },
       mapTypeId: "terrain",
     }
   );
 
-  // Define the LatLng coordinates for the polygon's path. Note that there's
-  // no need to specify the final coordinates to complete the polygon, because
-  // The Google Maps JavaScript API will automatically draw the closing side.
-  const triangleCoords = [
+  const blueCoords = [
+    { lat: 25.774, lng: -60.19 },
+    { lat: 18.466, lng: -46.118 },
+    { lat: 32.321, lng: -44.757 },
+  ];
+
+  const redCoords = [
     { lat: 25.774, lng: -80.19 },
     { lat: 18.466, lng: -66.118 },
     { lat: 32.321, lng: -64.757 },
   ];
 
-  const bermudaTriangle = new google.maps.Polygon({
-    paths: triangleCoords,
+  // Construct a draggable red triangle with geodesic set to true.
+  new google.maps.Polygon({
+    map,
+    paths: redCoords,
     strokeColor: "#FF0000",
     strokeOpacity: 0.8,
-    strokeWeight: 3,
+    strokeWeight: 2,
     fillColor: "#FF0000",
     fillOpacity: 0.35,
+    draggable: true,
+    geodesic: true,
   });
-  bermudaTriangle.setMap(map);
+
+  // Construct a draggable blue triangle with geodesic set to false.
+  new google.maps.Polygon({
+    map,
+    paths: blueCoords,
+    strokeColor: "#0000FF",
+    strokeOpacity: 0.8,
+    strokeWeight: 2,
+    fillColor: "#0000FF",
+    fillOpacity: 0.35,
+    draggable: true,
+    geodesic: false,
+  });
 }
 export { initMap };
