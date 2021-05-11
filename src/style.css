@@ -26,18 +26,6 @@ body {
   padding-left: 10px;
 }
 
-#pano {
-  width: 50%;
-  height: 100%;
-  float: left;
-}
-
 #floating-panel {
-  width: 45%;
-  height: 100%;
-  float: right;
-  text-align: left;
-  overflow: auto;
-  position: static;
-  border: 0px solid #999;
+  margin-left: -100px;
 }

@@ -16,59 +16,62 @@
 /* eslint-disable no-undef, @typescript-eslint/no-unused-vars, no-unused-vars */
 import "./style.css";
 
-function initPano() {
-  const panorama = new google.maps.StreetViewPanorama(
-    document.getElementById("pano") as HTMLElement,
+let panorama: google.maps.StreetViewPanorama;
+
+function initMap(): void {
+  const astorPlace = { lat: 40.729884, lng: -73.990988 };
+
+  // Set up the map
+  const map = new google.maps.Map(
+    document.getElementById("map") as HTMLElement,
     {
-      position: { lat: 37.869, lng: -122.255 },
-      pov: {
-        heading: 270,
-        pitch: 0,
-      },
-      visible: true,
+      center: astorPlace,
+      zoom: 18,
+      streetViewControl: false,
     }
   );
 
-  panorama.addListener("pano_changed", () => {
-    const panoCell = document.getElementById("pano-cell") as HTMLElement;
-    panoCell.innerHTML = panorama.getPano();
+  // Set up the markers on the map
+  const cafeMarker = new google.maps.Marker({
+    position: { lat: 40.730031, lng: -73.991428 },
+    map,
+    icon: "https://chart.apis.google.com/chart?chst=d_map_pin_icon&chld=cafe|FFFF00",
+    title: "Cafe",
   });
 
-  panorama.addListener("links_changed", () => {
-    const linksTable = document.getElementById("links_table") as HTMLElement;
+  const bankMarker = new google.maps.Marker({
+    position: { lat: 40.729681, lng: -73.991138 },
+    map,
+    icon: "https://chart.apis.google.com/chart?chst=d_map_pin_icon&chld=dollar|FFFF00",
+    title: "Bank",
+  });
 
-    while (linksTable.hasChildNodes()) {
-      linksTable.removeChild(linksTable.lastChild as ChildNode);
+  const busMarker = new google.maps.Marker({
+    position: { lat: 40.729559, lng: -73.990741 },
+    map,
+    icon: "https://chart.apis.google.com/chart?chst=d_map_pin_icon&chld=bus|FFFF00",
+    title: "Bus Stop",
+  });
+
+  // We get the map's default panorama and set up some defaults.
+  // Note that we don't yet set it visible.
+  panorama = map.getStreetView()!; // TODO fix type
+  panorama.setPosition(astorPlace);
+  panorama.setPov(
+    /** @type {google.maps.StreetViewPov} */ {
+      heading: 265,
+      pitch: 0,
     }
-    const links = panorama.getLinks();
-
-    for (const i in links) {
-      const row = document.createElement("tr");
-      linksTable.appendChild(row);
-      const labelCell = document.createElement("td");
-      labelCell.innerHTML = "<b>Link: " + i + "</b>";
-      const valueCell = document.createElement("td");
-      valueCell.innerHTML = links[i].description as string;
-      linksTable.appendChild(labelCell);
-      linksTable.appendChild(valueCell);
-    }
-  });
-
-  panorama.addListener("position_changed", () => {
-    const positionCell = document.getElementById(
-      "position-cell"
-    ) as HTMLElement;
-    (positionCell.firstChild as HTMLElement).nodeValue =
-      panorama.getPosition() + "";
-  });
-
-  panorama.addListener("pov_changed", () => {
-    const headingCell = document.getElementById("heading-cell") as HTMLElement;
-    const pitchCell = document.getElementById("pitch-cell") as HTMLElement;
-    (headingCell.firstChild as HTMLElement).nodeValue =
-      panorama.getPov().heading + "";
-    (pitchCell.firstChild as HTMLElement).nodeValue =
-      panorama.getPov().pitch + "";
-  });
+  );
 }
-export { initPano };
+
+function toggleStreetView() {
+  const toggle = panorama.getVisible();
+
+  if (toggle == false) {
+    panorama.setVisible(true);
+  } else {
+    panorama.setVisible(false);
+  }
+}
+export { initMap, toggleStreetView };
