@@ -16,28 +16,31 @@
 /* eslint-disable no-undef, @typescript-eslint/no-unused-vars, no-unused-vars */
 import "./style.css";
 
-// This example adds a user-editable rectangle to the map.
+// Initialize and add the side by side maps
 function initMap(): void {
-  const map = new google.maps.Map(
-    document.getElementById("map") as HTMLElement,
-    {
-      center: { lat: 44.5452, lng: -78.5389 },
-      zoom: 9,
-    }
-  );
-
-  const bounds = {
-    north: 44.599,
-    south: 44.49,
-    east: -78.443,
-    west: -78.649,
+  const sharedOptions = {
+    center: { lat: 47.609414458375674, lng: -122.33897030353548 },
+    zoom: 17,
+    disableDefaultUI: true,
+    gestureHandling: "none",
   };
 
-  // Define a rectangle and set its editable property to true.
-  const rectangle = new google.maps.Rectangle({
-    bounds: bounds,
-    editable: true,
-  });
-  rectangle.setMap(map);
+  new google.maps.Map(
+    document.getElementById("left") as HTMLElement,
+    {
+      ...sharedOptions,
+      mapId: "ed1309c122a3dfcb",
+      useStaticMap: false,
+    } as google.maps.MapOptions
+  );
+
+  new google.maps.Map(
+    document.getElementById("right") as HTMLElement,
+    {
+      ...sharedOptions,
+      mapId: "ed1309c122a3dfcb",
+      useStaticMap: true,
+    } as google.maps.MapOptions // TODO add mapId to @types/googlemaps when out of beta
+  );
 }
 export { initMap };

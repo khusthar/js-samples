@@ -1,11 +1,11 @@
-# Run the `user-editable-shapes` sample in Google Cloud Shell
+# Run the `vector-use-static-map` sample in Google Cloud Shell
 
 <walkthrough-tutorial-duration duration="10"/>
 
 ## Introduction
 
 This tutorial will walk through the process of running a web application from
-the `user-editable-shapes` sample using TypeScript, Babel, and Webpack.
+the `vector-use-static-map` sample using TypeScript, Babel, and Webpack.
 
 For feedback related to this sample, please open a new issue on
 [GitHub](https://github.com/googlemaps/js-samples/issues).
