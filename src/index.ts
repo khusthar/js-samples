@@ -16,43 +16,41 @@
 /* eslint-disable no-undef, @typescript-eslint/no-unused-vars, no-unused-vars */
 import "./style.css";
 
-// This example creates an interactive map which constructs a polyline based on
-// user clicks. Note that the polyline only appears once its path property
-// contains two LatLng coordinates.
+// This example adds a UI control allowing users to remove the polyline from the
+// map.
 
-let poly: google.maps.Polyline;
+let flightPath: google.maps.Polyline;
 let map: google.maps.Map;
 
 function initMap(): void {
   map = new google.maps.Map(document.getElementById("map") as HTMLElement, {
-    zoom: 7,
-    center: { lat: 41.879, lng: -87.624 }, // Center the map on Chicago, USA.
+    zoom: 3,
+    center: { lat: 0, lng: -180 },
+    mapTypeId: "terrain",
   });
 
-  poly = new google.maps.Polyline({
-    strokeColor: "#000000",
+  const flightPathCoordinates: google.maps.LatLngLiteral[] = [
+    { lat: 37.772, lng: -122.214 },
+    { lat: 21.291, lng: -157.821 },
+    { lat: -18.142, lng: 178.431 },
+    { lat: -27.467, lng: 153.027 },
+  ];
+
+  flightPath = new google.maps.Polyline({
+    path: flightPathCoordinates,
+    strokeColor: "#FF0000",
     strokeOpacity: 1.0,
-    strokeWeight: 3,
+    strokeWeight: 2,
   });
-  poly.setMap(map);
 
-  // Add a listener for the click event
-  map.addListener("click", addLatLng);
+  addLine();
 }
 
-// Handles click events on a map, and adds a new point to the Polyline.
-function addLatLng(event: google.maps.MapMouseEvent) {
-  const path = poly.getPath();
-
-  // Because path is an MVCArray, we can simply append a new coordinate
-  // and it will automatically appear.
-  path.push(event.latLng);
-
-  // Add a new marker at the new plotted point on the polyline.
-  new google.maps.Marker({
-    position: event.latLng,
-    title: "#" + path.getLength(),
-    map: map,
-  });
+function addLine() {
+  flightPath.setMap(map);
 }
-export { initMap };
+
+function removeLine() {
+  flightPath.setMap(null);
+}
+export { initMap, addLine, removeLine };
