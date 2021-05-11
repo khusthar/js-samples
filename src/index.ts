@@ -16,35 +16,54 @@
 /* eslint-disable no-undef, @typescript-eslint/no-unused-vars, no-unused-vars */
 import "./style.css";
 
-// The following example creates a marker in Stockholm, Sweden using a DROP
-// animation. Clicking on the marker will toggle the animation between a BOUNCE
-// animation and no animation.
+// If you're adding a number of markers, you may want to drop them on the map
+// consecutively rather than all at once. This example shows how to use
+// window.setTimeout() to space your markers' animation.
 
-let marker: google.maps.Marker;
+const neighborhoods: google.maps.LatLngLiteral[] = [
+  { lat: 52.511, lng: 13.447 },
+  { lat: 52.549, lng: 13.422 },
+  { lat: 52.497, lng: 13.396 },
+  { lat: 52.517, lng: 13.394 },
+];
+
+let markers: google.maps.Marker[] = [];
+let map: google.maps.Map;
 
 function initMap(): void {
-  const map = new google.maps.Map(
-    document.getElementById("map") as HTMLElement,
-    {
-      zoom: 13,
-      center: { lat: 59.325, lng: 18.07 },
-    }
-  );
-
-  marker = new google.maps.Marker({
-    map,
-    draggable: true,
-    animation: google.maps.Animation.DROP,
-    position: { lat: 59.327, lng: 18.067 },
+  map = new google.maps.Map(document.getElementById("map") as HTMLElement, {
+    zoom: 12,
+    center: { lat: 52.52, lng: 13.41 },
   });
-  marker.addListener("click", toggleBounce);
 }
 
-function toggleBounce() {
-  if (marker.getAnimation() !== null) {
-    marker.setAnimation(null);
-  } else {
-    marker.setAnimation(google.maps.Animation.BOUNCE);
+function drop() {
+  clearMarkers();
+
+  for (let i = 0; i < neighborhoods.length; i++) {
+    addMarkerWithTimeout(neighborhoods[i], i * 200);
   }
 }
-export { initMap };
+
+function addMarkerWithTimeout(
+  position: google.maps.LatLngLiteral,
+  timeout: number
+) {
+  window.setTimeout(() => {
+    markers.push(
+      new google.maps.Marker({
+        position: position,
+        map,
+        animation: google.maps.Animation.DROP,
+      })
+    );
+  }, timeout);
+}
+
+function clearMarkers() {
+  for (let i = 0; i < markers.length; i++) {
+    markers[i].setMap(null);
+  }
+  markers = [];
+}
+export { initMap, drop };
