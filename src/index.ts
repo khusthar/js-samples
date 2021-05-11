@@ -17,20 +17,19 @@
 import "./style.css";
 
 function initMap(): void {
-  const directionsRenderer = new google.maps.DirectionsRenderer();
   const directionsService = new google.maps.DirectionsService();
+  const directionsRenderer = new google.maps.DirectionsRenderer();
   const map = new google.maps.Map(
     document.getElementById("map") as HTMLElement,
     {
-      zoom: 14,
-      center: { lat: 37.77, lng: -122.447 },
+      zoom: 6,
+      center: { lat: 41.85, lng: -87.65 },
     }
   );
   directionsRenderer.setMap(map);
 
-  calculateAndDisplayRoute(directionsService, directionsRenderer);
-  (document.getElementById("mode") as HTMLInputElement).addEventListener(
-    "change",
+  (document.getElementById("submit") as HTMLElement).addEventListener(
+    "click",
     () => {
       calculateAndDisplayRoute(directionsService, directionsRenderer);
     }
@@ -41,21 +40,46 @@ function calculateAndDisplayRoute(
   directionsService: google.maps.DirectionsService,
   directionsRenderer: google.maps.DirectionsRenderer
 ) {
-  const selectedMode = (document.getElementById("mode") as HTMLInputElement)
-    .value;
+  const waypts: google.maps.DirectionsWaypoint[] = [];
+  const checkboxArray = document.getElementById(
+    "waypoints"
+  ) as HTMLSelectElement;
+
+  for (let i = 0; i < checkboxArray.length; i++) {
+    if (checkboxArray.options[i].selected) {
+      waypts.push({
+        location: (checkboxArray[i] as HTMLOptionElement).value,
+        stopover: true,
+      });
+    }
+  }
+
   directionsService.route(
     {
-      origin: { lat: 37.77, lng: -122.447 }, // Haight.
-      destination: { lat: 37.768, lng: -122.511 }, // Ocean Beach.
-      // Note that Javascript allows us to access the constant
-      // using square brackets and a string value as its
-      // "property."
-      // @ts-ignore
-      travelMode: google.maps.TravelMode[selectedMode],
+      origin: (document.getElementById("start") as HTMLInputElement).value,
+      destination: (document.getElementById("end") as HTMLInputElement).value,
+      waypoints: waypts,
+      optimizeWaypoints: true,
+      travelMode: google.maps.TravelMode.DRIVING,
     },
     (response, status) => {
-      if (status == "OK") {
+      if (status === "OK" && response) {
         directionsRenderer.setDirections(response);
+        const route = response.routes[0];
+        const summaryPanel = document.getElementById(
+          "directions-panel"
+        ) as HTMLElement;
+        summaryPanel.innerHTML = "";
+
+        // For each route, display summary information.
+        for (let i = 0; i < route.legs.length; i++) {
+          const routeSegment = i + 1;
+          summaryPanel.innerHTML +=
+            "<b>Route Segment: " + routeSegment + "</b><br>";
+          summaryPanel.innerHTML += route.legs[i].start_address + " to ";
+          summaryPanel.innerHTML += route.legs[i].end_address + "<br>";
+          summaryPanel.innerHTML += route.legs[i].distance!.text + "<br><br>";
+        }
       } else {
         window.alert("Directions request failed due to " + status);
       }
