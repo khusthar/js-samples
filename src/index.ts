@@ -16,60 +16,57 @@
 /* eslint-disable no-undef, @typescript-eslint/no-unused-vars, no-unused-vars */
 import "./style.css";
 
+/*
+ * This demo illustrates the coordinate system used to display map tiles in the
+ * API.
+ *
+ * Tiles in Google Maps are numbered from the same origin as that for
+ * pixels. For Google's implementation of the Mercator projection, the origin
+ * tile is always at the northwest corner of the map, with x values increasing
+ * from west to east and y values increasing from north to south.
+ *
+ * Try panning and zooming the map to see how the coordinates change.
+ */
+
+class CoordMapType {
+  tileSize: google.maps.Size;
+
+  constructor(tileSize: google.maps.Size) {
+    this.tileSize = tileSize;
+  }
+  getTile(
+    coord: google.maps.Point,
+    zoom: number,
+    ownerDocument: Document
+  ): HTMLElement {
+    const div = ownerDocument.createElement("div");
+    div.innerHTML = String(coord);
+    div.style.width = this.tileSize.width + "px";
+    div.style.height = this.tileSize.height + "px";
+    div.style.fontSize = "10";
+    div.style.borderStyle = "solid";
+    div.style.borderWidth = "1px";
+    div.style.borderColor = "#AAAAAA";
+    return div;
+  }
+  releaseTile(tile: Element): void {}
+}
+
 function initMap(): void {
   const map = new google.maps.Map(
     document.getElementById("map") as HTMLElement,
     {
-      zoom: 18,
-      center: { lat: 37.783, lng: -122.403 },
+      zoom: 10,
+      center: { lat: 41.85, lng: -87.65 },
     }
   );
 
-  const bounds: Record<number, [[number, number], [number, number]]> = {
-    17: [
-      [20969, 20970],
-      [50657, 50658],
-    ],
-    18: [
-      [41939, 41940],
-      [101315, 101317],
-    ],
-    19: [
-      [83878, 83881],
-      [202631, 202634],
-    ],
-    20: [
-      [167757, 167763],
-      [405263, 405269],
-    ],
-  };
-
-  const imageMapType = new google.maps.ImageMapType({
-    getTileUrl: function (coord, zoom) {
-      if (
-        zoom < 17 ||
-        zoom > 20 ||
-        bounds[zoom][0][0] > coord.x ||
-        coord.x > bounds[zoom][0][1] ||
-        bounds[zoom][1][0] > coord.y ||
-        coord.y > bounds[zoom][1][1]
-      ) {
-        return "";
-      }
-
-      return [
-        "https://www.gstatic.com/io2010maps/tiles/5/L2_",
-        zoom,
-        "_",
-        coord.x,
-        "_",
-        coord.y,
-        ".png",
-      ].join("");
-    },
-    tileSize: new google.maps.Size(256, 256),
-  });
-
-  map.overlayMapTypes.push(imageMapType);
+  // Insert this overlay map type as the first overlay map type at
+  // position 0. Note that all overlay map types appear on top of
+  // their parent base map.
+  map.overlayMapTypes.insertAt(
+    0,
+    new CoordMapType(new google.maps.Size(256, 256))
+  );
 }
 export { initMap };
