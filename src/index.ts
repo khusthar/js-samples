@@ -20,55 +20,85 @@ import "./style.css";
 // parameter when you first load the API. For example:
 // <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=places">
 
-let map: google.maps.Map;
-let service: google.maps.places.PlacesService;
-let infowindow: google.maps.InfoWindow;
-
 function initMap(): void {
-  const sydney = new google.maps.LatLng(-33.867, 151.195);
+  // Create the map.
+  const pyrmont = { lat: -33.866, lng: 151.196 };
+  const map = new google.maps.Map(
+    document.getElementById("map") as HTMLElement,
+    {
+      center: pyrmont,
+      zoom: 17,
+      mapId: "8d193001f940fde3",
+    } as google.maps.MapOptions
+  );
 
-  infowindow = new google.maps.InfoWindow();
+  // Create the places service.
+  const service = new google.maps.places.PlacesService(map);
+  let getNextPage: () => void | false;
+  const moreButton = document.getElementById("more") as HTMLButtonElement;
 
-  map = new google.maps.Map(document.getElementById("map") as HTMLElement, {
-    center: sydney,
-    zoom: 15,
-  });
+  moreButton.onclick = function () {
+    moreButton.disabled = true;
 
-  const request = {
-    query: "Museum of Contemporary Art Australia",
-    fields: ["name", "geometry"],
+    if (getNextPage) {
+      getNextPage();
+    }
   };
 
-  service = new google.maps.places.PlacesService(map);
-
-  service.findPlaceFromQuery(
-    request,
+  // Perform a nearby search.
+  service.nearbySearch(
+    { location: pyrmont, radius: 500, type: "store" },
     (
       results: google.maps.places.PlaceResult[] | null,
-      status: google.maps.places.PlacesServiceStatus
+      status: google.maps.places.PlacesServiceStatus,
+      pagination: google.maps.places.PlaceSearchPagination | null
     ) => {
-      if (status === google.maps.places.PlacesServiceStatus.OK && results) {
-        for (let i = 0; i < results.length; i++) {
-          createMarker(results[i]);
-        }
+      if (status !== "OK" || !results) return;
 
-        map.setCenter(results[0].geometry!.location!);
+      addPlaces(results, map);
+      moreButton.disabled = !pagination || !pagination.hasNextPage;
+
+      if (pagination && pagination.hasNextPage) {
+        getNextPage = () => {
+          // Note: nextPage will call the same handler function as the initial call
+          pagination.nextPage();
+        };
       }
     }
   );
 }
 
-function createMarker(place: google.maps.places.PlaceResult) {
-  if (!place.geometry || !place.geometry.location) return;
+function addPlaces(
+  places: google.maps.places.PlaceResult[],
+  map: google.maps.Map
+) {
+  const placesList = document.getElementById("places") as HTMLElement;
 
-  const marker = new google.maps.Marker({
-    map,
-    position: place.geometry.location,
-  });
+  for (const place of places) {
+    if (place.geometry && place.geometry.location) {
+      const image = {
+        url: place.icon!,
+        size: new google.maps.Size(71, 71),
+        origin: new google.maps.Point(0, 0),
+        anchor: new google.maps.Point(17, 34),
+        scaledSize: new google.maps.Size(25, 25),
+      };
 
-  google.maps.event.addListener(marker, "click", () => {
-    infowindow.setContent(place.name || "");
-    infowindow.open(map);
-  });
+      new google.maps.Marker({
+        map,
+        icon: image,
+        title: place.name!,
+        position: place.geometry.location,
+      });
+
+      const li = document.createElement("li");
+      li.textContent = place.name!;
+      placesList.appendChild(li);
+
+      li.addEventListener("click", () => {
+        map.setCenter(place.geometry!.location!);
+      });
+    }
+  }
 }
 export { initMap };
