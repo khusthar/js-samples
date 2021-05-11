@@ -16,111 +16,69 @@
 /* eslint-disable no-undef, @typescript-eslint/no-unused-vars, no-unused-vars */
 import "./style.css";
 
-let map: google.maps.Map;
-const center = { lat: 21.27869, lng: -157.826347 };
+function initMap(): void {
+  const chicago = new google.maps.LatLng(41.85, -87.65);
 
-const styles: google.maps.MapTypeStyle[] = [
-  { elementType: "geometry", stylers: [{ color: "#efe6be" }] },
-  { elementType: "labels.icon", stylers: [{ visibility: "off" }] },
-  {
-    elementType: "labels.text.fill",
-    stylers: [{ color: "#f5f5f5" }, { weight: 1.5 }],
-  },
-  {
-    elementType: "labels.text.stroke",
-    stylers: [{ color: "#9e9e9e" }, { weight: 1.5 }],
-  },
-  {
-    featureType: "administrative.land_parcel",
-    stylers: [{ visibility: "off" }],
-  },
-  {
-    featureType: "administrative.land_parcel",
-    elementType: "labels.text.fill",
-    stylers: [{ color: "#bdbdbd" }],
-  },
-  {
-    featureType: "administrative.neighborhood",
-    stylers: [{ visibility: "off" }],
-  },
-  {
-    featureType: "poi",
-    elementType: "geometry",
-    stylers: [{ color: "#c44135" }],
-  },
-  {
-    featureType: "poi.park",
-    elementType: "geometry",
-    stylers: [{ color: "#328829" }],
-  },
-  {
-    featureType: "poi.sports_complex",
-    elementType: "geometry",
-    stylers: [{ color: "#2ca37b" }],
-  },
-  {
-    featureType: "road",
-    elementType: "geometry",
-    stylers: [{ color: "#e4b083" }],
-  },
-  {
-    featureType: "road",
-    elementType: "labels",
-    stylers: [{ visibility: "off" }],
-  },
-  {
-    featureType: "water",
-    elementType: "geometry",
-    stylers: [{ color: "#32cbb1" }],
-  },
-  {
-    featureType: "water",
-    elementType: "labels.text",
-    stylers: [{ visibility: "off" }],
-  },
-  {
-    featureType: "water",
-    elementType: "labels.text.fill",
-    stylers: [{ color: "#9e9e9e" }],
-  },
-];
+  const map = new google.maps.Map(
+    document.getElementById("map") as HTMLElement,
+    {
+      center: chicago,
+      zoom: 3,
+    }
+  );
 
-function initMap() {
-  const localContextMapView = new google.maps.localContext.LocalContextMapView({
-    element: document.getElementById("map"),
-    placeTypePreferences: [
-      { type: "bakery", weight: 1 },
-      { type: "park", weight: 2 },
-      { type: "restaurant", weight: 3 },
-      { type: "shopping_mall", weight: 1 },
-      { type: "tourist_attraction", weight: 3 },
-    ],
-    maxPlaceCount: 18,
-    directionsOptions: { origin: center },
+  const coordInfoWindow = new google.maps.InfoWindow();
+  coordInfoWindow.setContent(createInfoWindowContent(chicago, map.getZoom()!));
+  coordInfoWindow.setPosition(chicago);
+  coordInfoWindow.open(map);
+
+  map.addListener("zoom_changed", () => {
+    coordInfoWindow.setContent(
+      createInfoWindowContent(chicago, map.getZoom()!)
+    );
+    coordInfoWindow.open(map);
   });
+}
 
-  map = localContextMapView.map!;
+const TILE_SIZE = 256;
 
-  // Trigger hidePlaceDetailsView() with a click event handler on the inner map.
-  map.addListener("click", () => {
-    localContextMapView.hidePlaceDetailsView();
-  });
+function createInfoWindowContent(latLng: google.maps.LatLng, zoom: number) {
+  const scale = 1 << zoom;
 
-  // Merge map styles.
-  const mergedStyles = map.get("styles").concat(styles);
+  const worldCoordinate = project(latLng);
 
-  map.setOptions({
-    center: center,
-    zoom: 14,
-    styles: mergedStyles,
-  });
+  const pixelCoordinate = new google.maps.Point(
+    Math.floor(worldCoordinate.x * scale),
+    Math.floor(worldCoordinate.y * scale)
+  );
 
-  // Add a marker at the center point
-  new google.maps.Marker({
-    position: center,
-    map: map,
-    icon: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAdUlEQVR4AWMYOWAU/AfhYWMBCxA3A/FlIN4MxN7I6gjg80DcD8QC+CzIxqIxH6aOSHwfYQmmBZexuQymjgTcj8uCz1gUHybDgvO4LFiMRXE4GRb8x2UBDxCXQ8PxPdSrLNSxAD+g3ALCeNQCKoHhZcHAg1EAAM3cyWj3TGxhAAAAAElFTkSuQmCC",
-    zIndex: 30,
-  });
+  const tileCoordinate = new google.maps.Point(
+    Math.floor((worldCoordinate.x * scale) / TILE_SIZE),
+    Math.floor((worldCoordinate.y * scale) / TILE_SIZE)
+  );
+
+  return [
+    "Chicago, IL",
+    "LatLng: " + latLng,
+    "Zoom level: " + zoom,
+    "World Coordinate: " + worldCoordinate,
+    "Pixel Coordinate: " + pixelCoordinate,
+    "Tile Coordinate: " + tileCoordinate,
+  ].join("<br>");
+}
+
+// The mapping between latitude, longitude and pixels is defined by the web
+// mercator projection.
+function project(latLng: google.maps.LatLng) {
+  let siny = Math.sin((latLng.lat() * Math.PI) / 180);
+
+  // Truncating to 0.9999 effectively limits latitude to 89.189. This is
+  // about a third of a tile past the edge of the world tile.
+  siny = Math.min(Math.max(siny, -0.9999), 0.9999);
+
+  return new google.maps.Point(
+    TILE_SIZE * (0.5 + latLng.lng() / 360),
+    TILE_SIZE * (0.5 - Math.log((1 + siny) / (1 - siny)) / (4 * Math.PI))
+  );
 }
 export { initMap };
