@@ -16,158 +16,81 @@
 /* eslint-disable no-undef, @typescript-eslint/no-unused-vars, no-unused-vars */
 import "./style.css";
 
-// This example adds hide() and show() methods to a custom overlay's prototype.
-// These methods toggle the visibility of the container <div>.
-// overlay to or from the map.
+let map: google.maps.Map, popup, Popup;
 
+/** Initializes the map and the custom popup. */
 function initMap(): void {
-  const map = new google.maps.Map(
-    document.getElementById("map") as HTMLElement,
-    {
-      zoom: 11,
-      center: { lat: 62.323907, lng: -150.109291 },
-      mapTypeId: "satellite",
-    }
-  );
-
-  const bounds = new google.maps.LatLngBounds(
-    new google.maps.LatLng(62.281819, -150.287132),
-    new google.maps.LatLng(62.400471, -150.005608)
-  );
-
-  // The photograph is courtesy of the U.S. Geological Survey.
-  let image = "https://developers.google.com/maps/documentation/javascript/";
-  image += "examples/full/images/talkeetna.png";
+  map = new google.maps.Map(document.getElementById("map") as HTMLElement, {
+    center: { lat: -33.9, lng: 151.1 },
+    zoom: 10,
+  });
 
   /**
-   * The custom USGSOverlay object contains the USGS image,
-   * the bounds of the image, and a reference to the map.
+   * A customized popup on the map.
    */
-  class USGSOverlay extends google.maps.OverlayView {
-    private bounds: google.maps.LatLngBounds;
-    private image: string;
-    private div?: HTMLElement;
+  class Popup extends google.maps.OverlayView {
+    position: google.maps.LatLng;
+    containerDiv: HTMLDivElement;
 
-    constructor(bounds: google.maps.LatLngBounds, image: string) {
+    constructor(position: google.maps.LatLng, content: HTMLElement) {
       super();
+      this.position = position;
 
-      this.bounds = bounds;
-      this.image = image;
+      content.classList.add("popup-bubble");
+
+      // This zero-height div is positioned at the bottom of the bubble.
+      const bubbleAnchor = document.createElement("div");
+      bubbleAnchor.classList.add("popup-bubble-anchor");
+      bubbleAnchor.appendChild(content);
+
+      // This zero-height div is positioned at the bottom of the tip.
+      this.containerDiv = document.createElement("div");
+      this.containerDiv.classList.add("popup-container");
+      this.containerDiv.appendChild(bubbleAnchor);
+
+      // Optionally stop clicks, etc., from bubbling up to the map.
+      Popup.preventMapHitsAndGesturesFrom(this.containerDiv);
     }
 
-    /**
-     * onAdd is called when the map's panes are ready and the overlay has been
-     * added to the map.
-     */
+    /** Called when the popup is added to the map. */
     onAdd() {
-      this.div = document.createElement("div");
-      this.div.style.borderStyle = "none";
-      this.div.style.borderWidth = "0px";
-      this.div.style.position = "absolute";
-
-      // Create the img element and attach it to the div.
-      const img = document.createElement("img");
-      img.src = this.image;
-      img.style.width = "100%";
-      img.style.height = "100%";
-      img.style.position = "absolute";
-      this.div.appendChild(img);
-
-      // Add the element to the "overlayLayer" pane.
-      const panes = this.getPanes()!;
-      panes.overlayLayer.appendChild(this.div);
+      this.getPanes()!.floatPane.appendChild(this.containerDiv);
     }
 
-    draw() {
-      // We use the south-west and north-east
-      // coordinates of the overlay to peg it to the correct position and size.
-      // To do this, we need to retrieve the projection from the overlay.
-      const overlayProjection = this.getProjection();
-
-      // Retrieve the south-west and north-east coordinates of this overlay
-      // in LatLngs and convert them to pixel coordinates.
-      // We'll use these coordinates to resize the div.
-      const sw = overlayProjection.fromLatLngToDivPixel(
-        this.bounds.getSouthWest()
-      )!;
-      const ne = overlayProjection.fromLatLngToDivPixel(
-        this.bounds.getNorthEast()
-      )!;
-
-      // Resize the image's div to fit the indicated dimensions.
-      if (this.div) {
-        this.div.style.left = sw.x + "px";
-        this.div.style.top = ne.y + "px";
-        this.div.style.width = ne.x - sw.x + "px";
-        this.div.style.height = sw.y - ne.y + "px";
-      }
-    }
-
-    /**
-     * The onRemove() method will be called automatically from the API if
-     * we ever set the overlay's map property to 'null'.
-     */
+    /** Called when the popup is removed from the map. */
     onRemove() {
-      if (this.div) {
-        (this.div.parentNode as HTMLElement).removeChild(this.div);
-        delete this.div;
+      if (this.containerDiv.parentElement) {
+        this.containerDiv.parentElement.removeChild(this.containerDiv);
       }
     }
 
-    /**
-     *  Set the visibility to 'hidden' or 'visible'.
-     */
-    hide() {
-      if (this.div) {
-        this.div.style.visibility = "hidden";
-      }
-    }
+    /** Called each frame when the popup needs to draw itself. */
+    draw() {
+      const divPosition = this.getProjection().fromLatLngToDivPixel(
+        this.position
+      )!;
 
-    show() {
-      if (this.div) {
-        this.div.style.visibility = "visible";
-      }
-    }
+      // Hide the popup when it is far out of view.
+      const display =
+        Math.abs(divPosition.x) < 4000 && Math.abs(divPosition.y) < 4000
+          ? "block"
+          : "none";
 
-    toggle() {
-      if (this.div) {
-        if (this.div.style.visibility === "hidden") {
-          this.show();
-        } else {
-          this.hide();
-        }
+      if (display === "block") {
+        this.containerDiv.style.left = divPosition.x + "px";
+        this.containerDiv.style.top = divPosition.y + "px";
       }
-    }
 
-    toggleDOM(map: google.maps.Map) {
-      if (this.getMap()) {
-        this.setMap(null);
-      } else {
-        this.setMap(map);
+      if (this.containerDiv.style.display !== display) {
+        this.containerDiv.style.display = display;
       }
     }
   }
 
-  const overlay: USGSOverlay = new USGSOverlay(bounds, image);
-  overlay.setMap(map);
-
-  const toggleButton = document.createElement("button");
-  toggleButton.textContent = "Toggle";
-  toggleButton.classList.add("custom-map-control-button");
-
-  const toggleDOMButton = document.createElement("button");
-  toggleDOMButton.textContent = "Toggle DOM Attachment";
-  toggleDOMButton.classList.add("custom-map-control-button");
-
-  toggleButton.addEventListener("click", () => {
-    overlay.toggle();
-  });
-
-  toggleDOMButton.addEventListener("click", () => {
-    overlay.toggleDOM(map);
-  });
-
-  map.controls[google.maps.ControlPosition.TOP_RIGHT].push(toggleDOMButton);
-  map.controls[google.maps.ControlPosition.TOP_RIGHT].push(toggleButton);
+  popup = new Popup(
+    new google.maps.LatLng(-33.866, 151.196),
+    document.getElementById("content") as HTMLElement
+  );
+  popup.setMap(map);
 }
 export { initMap };
