@@ -15,54 +15,42 @@
  */
 /* eslint-disable no-undef, @typescript-eslint/no-unused-vars, no-unused-vars */
 import "./style.css";
-
-// This example requires the Places library. Include the libraries=places
-// parameter when you first load the API. For example:
-// <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=places">
+let map: google.maps.Map;
 
 function initMap(): void {
-  const map = new google.maps.Map(
-    document.getElementById("map") as HTMLElement,
-    {
-      center: { lat: -33.866, lng: 151.196 },
-      zoom: 15,
-    }
-  );
+  // Create a map centered in Pyrmont, Sydney (Australia).
+  map = new google.maps.Map(document.getElementById("map") as HTMLElement, {
+    center: { lat: -33.8666, lng: 151.1958 },
+    zoom: 15,
+  });
 
+  // Search for Google's office in Australia.
   const request = {
-    placeId: "ChIJN1t_tDeuEmsRUsoyG83frY4",
-    fields: ["name", "formatted_address", "place_id", "geometry"],
+    location: map.getCenter(),
+    radius: 500,
+    query: "Google Sydney",
   };
 
-  const infowindow = new google.maps.InfoWindow();
   const service = new google.maps.places.PlacesService(map);
+  service.textSearch(request, callback);
+}
 
-  service.getDetails(request, (place, status) => {
-    if (
-      status === google.maps.places.PlacesServiceStatus.OK &&
-      place &&
-      place.geometry &&
-      place.geometry.location
-    ) {
-      const marker = new google.maps.Marker({
-        map,
-        position: place.geometry.location,
-      });
-      google.maps.event.addListener(marker, "click", function () {
-        infowindow.setContent(
-          "<div><strong>" +
-            place.name +
-            "</strong><br>" +
-            "Place ID: " +
-            place.place_id +
-            "<br>" +
-            place.formatted_address +
-            "</div>"
-        );
-        // @ts-ignore
-        infowindow.open(map, this);
-      });
-    }
-  });
+// Checks that the PlacesServiceStatus is OK, and adds a marker
+// using the location from the PlacesService.
+function callback(
+  results: google.maps.places.PlaceResult[] | null,
+  status: google.maps.places.PlacesServiceStatus
+) {
+  if (
+    status == google.maps.places.PlacesServiceStatus.OK &&
+    results &&
+    results[0].geometry &&
+    results[0].geometry.location
+  ) {
+    new google.maps.Marker({
+      map,
+      position: results[0].geometry.location,
+    });
+  }
 }
 export { initMap };
