@@ -66,7 +66,7 @@ async function main(argv) {
 
   // console.log(data);
 
-  writeFile(out, sortPackageJson(JSON.stringify(data, null, 2)));
+  writeFile(out, sortPackageJson(JSON.stringify(data, null, 2) + '\n'));
 }
 
 const argv = require("yargs")

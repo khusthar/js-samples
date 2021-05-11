@@ -43,10 +43,10 @@
         "use strict";
         var e = {
             d: (t, o) => {
-              for (var n in o)
-                e.o(o, n) &&
-                  !e.o(t, n) &&
-                  Object.defineProperty(t, n, { enumerable: !0, get: o[n] });
+              for (var a in o)
+                e.o(o, a) &&
+                  !e.o(t, a) &&
+                  Object.defineProperty(t, a, { enumerable: !0, get: o[a] });
             },
             o: (e, t) => Object.prototype.hasOwnProperty.call(e, t),
             r: (e) => {
@@ -61,26 +61,26 @@
           t = {};
         let o;
         e.r(t), e.d(t, { map: () => o });
-        const n = { lat: 41.90476224706472, lng: 12.49822074385094 },
-          a = new google.maps.plugins.loader.Loader({
-            apiKey: "undefined",
+        const a = { lat: 41.90476224706472, lng: 12.49822074385094 },
+          n = new google.maps.plugins.loader.Loader({
+            apiKey: "AIzaSyBIwzALxUPNbatRBj3Xi1Uhp0fFzwWNBkE",
             version: "weekly",
           });
         document.addEventListener("DOMContentLoaded", () => {
           const e = document.getElementById("wrapper");
-          (e.style.backgroundImage = `url(https://maps.googleapis.com/maps/api/staticmap?center=${n.lat},${n.lng}&zoom=14&scale=2&size=${e.clientWidth}x${e.clientHeight}&key=undefined)`),
+          (e.style.backgroundImage = `url(https://maps.googleapis.com/maps/api/staticmap?center=${a.lat},${a.lng}&zoom=14&scale=2&size=${e.clientWidth}x${e.clientHeight}&key=AIzaSyBIwzALxUPNbatRBj3Xi1Uhp0fFzwWNBkE)`),
             e.addEventListener("click", () => {
               e.remove(),
-                a.load().then(() => {
+                n.load().then(() => {
                   o = new google.maps.Map(document.getElementById("map"), {
-                    center: n,
+                    center: a,
                     zoom: 14,
                   });
                 });
             });
         });
         var r = window;
-        for (var d in t) r[d] = t[d];
+        for (var l in t) r[l] = t[l];
         t.__esModule && Object.defineProperty(r, "__esModule", { value: !0 });
       })();
     </script>

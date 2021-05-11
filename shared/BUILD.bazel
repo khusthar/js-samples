@@ -5,6 +5,8 @@ exports_files([
     "cloud_shell_instructions.tpl.md",
     "README.md",
     "sandbox.config.json",
+    ".gitpod.yml",
+    ".gitignore",
 ] + glob(["webpack.*.js"]))
 
 filegroup(

@@ -260,6 +260,12 @@ def sample(name, YOUR_API_KEY = "GOOGLE_MAPS_JS_SAMPLES_KEY", dependencies = [],
         mode = "iframe",
     )
 
+    native.genrule(
+        name = "_replaced_key_ts",
+        srcs = [":src/index.ts"],
+        outs = ["_replaced_key_index.ts"],
+        cmd = "sed \"s/YOUR_API_KEY/$${GOOGLE_MAPS_JS_SAMPLES_KEY}/g\" $(location :src/index.ts) > $@; ",
+    )
     webpack(
         name = "iframe_bundle",
         outs = ["iframe.js"],
@@ -267,14 +273,14 @@ def sample(name, YOUR_API_KEY = "GOOGLE_MAPS_JS_SAMPLES_KEY", dependencies = [],
             "--mode production",
             "--env SKIP_HTML",
             "--entry",
-            "./$(execpath :src/index.ts)",
+            "./$(execpath :_replaced_key_index.ts)",
             "--config",
             "./$(execpath //shared:webpack.config.js)",
             "-o $(@D)",
             "--output-filename iframe.js",
         ],
         data = [
-            ":src/index.ts",
+            ":_replaced_key_index.ts",
             # config
             "//shared:webpack.config.js",
             "//:tsconfig.json",
@@ -388,6 +394,8 @@ def sample(name, YOUR_API_KEY = "GOOGLE_MAPS_JS_SAMPLES_KEY", dependencies = [],
     copy_file(name = "webpack-config", src = "//shared:webpack.config.js", out = "app/webpack.config.js")
     copy_file(name = "tsconfig", src = "//:tsconfig.json", out = "app/tsconfig.json")
     copy_file(name = "sandbox-config", src = "//shared:sandbox.config.json", out = "app/sandbox.config.json")
+    copy_file(name = "gitpod", src = "//shared:.gitpod.yml", out = "app/.gitpod.yml")
+    copy_file(name = "gitignore", src = "//shared:.gitignore", out = "app/.gitignore")
 
     native.filegroup(
         name = "package",
@@ -401,6 +409,8 @@ def sample(name, YOUR_API_KEY = "GOOGLE_MAPS_JS_SAMPLES_KEY", dependencies = [],
             ":webpack-config",
             ":tsconfig",
             ":sandbox-config",  # code sandbox does not support webpack and the parcel template has issues with async/callback scripts
+            ":gitpod",
+            ":gitignore",
         ],
         visibility = ["//visibility:public"],
     )
