@@ -20,51 +20,21 @@ function initMap(): void {
   const map = new google.maps.Map(
     document.getElementById("map") as HTMLElement,
     {
-      zoom: 8,
-      center: { lat: 63.333, lng: -150.5 }, // Denali.
-      mapTypeId: "terrain",
+      zoom: 4,
+      center: { lat: -25.363882, lng: 131.044922 },
     }
   );
-  const elevator = new google.maps.ElevationService();
-  const infowindow = new google.maps.InfoWindow({});
-  infowindow.open(map);
 
-  // Add a listener for the click event. Display the elevation for the LatLng of
-  // the click inside the infowindow.
-  map.addListener("click", (event) => {
-    displayLocationElevation(event.latLng, elevator, infowindow);
+  map.addListener("click", (e) => {
+    placeMarkerAndPanTo(e.latLng, map);
   });
 }
 
-function displayLocationElevation(
-  location: google.maps.LatLng,
-  elevator: google.maps.ElevationService,
-  infowindow: google.maps.InfoWindow
-) {
-  // Initiate the location request
-  elevator.getElevationForLocations(
-    {
-      locations: [location],
-    },
-    (results, status) => {
-      infowindow.setPosition(location);
-
-      if (status === "OK" && results) {
-        // Retrieve the first result
-        if (results[0]) {
-          // Open the infowindow indicating the elevation at the clicked position.
-          infowindow.setContent(
-            "The elevation at this point <br>is " +
-              results[0].elevation +
-              " meters."
-          );
-        } else {
-          infowindow.setContent("No results found");
-        }
-      } else {
-        infowindow.setContent("Elevation service failed due to: " + status);
-      }
-    }
-  );
+function placeMarkerAndPanTo(latLng: google.maps.LatLng, map: google.maps.Map) {
+  new google.maps.Marker({
+    position: latLng,
+    map: map,
+  });
+  map.panTo(latLng);
 }
 export { initMap };
