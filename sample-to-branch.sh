@@ -27,6 +27,7 @@ for sample in samples/*/; do
   cp $sample/app/.env $tmp/.env
   cp $sample/app/.*.yml $tmp/
   cp $sample/app/.gitignore $tmp/.gitignore
+  cp $sample/CLOUD_SHELL_INSTRUCTIONS.md $tmp/CLOUD_SHELL_INSTRUCTIONS.md
 
   pushd $tmp
     git add -A
