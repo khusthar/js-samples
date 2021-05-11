@@ -17,27 +17,23 @@
 import "./style.css";
 
 function initMap(): void {
-  const directionsService = new google.maps.DirectionsService();
   const directionsRenderer = new google.maps.DirectionsRenderer();
+  const directionsService = new google.maps.DirectionsService();
   const map = new google.maps.Map(
     document.getElementById("map") as HTMLElement,
     {
-      zoom: 7,
-      center: { lat: 41.85, lng: -87.65 },
+      zoom: 14,
+      center: { lat: 37.77, lng: -122.447 },
     }
   );
   directionsRenderer.setMap(map);
 
-  const onChangeHandler = function () {
-    calculateAndDisplayRoute(directionsService, directionsRenderer);
-  };
-  (document.getElementById("start") as HTMLElement).addEventListener(
+  calculateAndDisplayRoute(directionsService, directionsRenderer);
+  (document.getElementById("mode") as HTMLInputElement).addEventListener(
     "change",
-    onChangeHandler
-  );
-  (document.getElementById("end") as HTMLElement).addEventListener(
-    "change",
-    onChangeHandler
+    () => {
+      calculateAndDisplayRoute(directionsService, directionsRenderer);
+    }
   );
 }
 
@@ -45,18 +41,20 @@ function calculateAndDisplayRoute(
   directionsService: google.maps.DirectionsService,
   directionsRenderer: google.maps.DirectionsRenderer
 ) {
+  const selectedMode = (document.getElementById("mode") as HTMLInputElement)
+    .value;
   directionsService.route(
     {
-      origin: {
-        query: (document.getElementById("start") as HTMLInputElement).value,
-      },
-      destination: {
-        query: (document.getElementById("end") as HTMLInputElement).value,
-      },
-      travelMode: google.maps.TravelMode.DRIVING,
+      origin: { lat: 37.77, lng: -122.447 }, // Haight.
+      destination: { lat: 37.768, lng: -122.511 }, // Ocean Beach.
+      // Note that Javascript allows us to access the constant
+      // using square brackets and a string value as its
+      // "property."
+      // @ts-ignore
+      travelMode: google.maps.TravelMode[selectedMode],
     },
     (response, status) => {
-      if (status === "OK") {
+      if (status == "OK") {
         directionsRenderer.setDirections(response);
       } else {
         window.alert("Directions request failed due to " + status);
