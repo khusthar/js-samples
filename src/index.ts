@@ -16,33 +16,24 @@
 /* eslint-disable no-undef, @typescript-eslint/no-unused-vars, no-unused-vars */
 import "./style.css";
 
-/**
- * @fileoverview Sample showing capturing a KML file click
- *   and displaying the contents in a side panel instead of
- *   an InfoWindow
- */
-let map: google.maps.Map;
-
-const url =
-  "https://developers.google.com/maps/documentation/javascript/examples/kml/westcampus.kml";
-
 function initMap(): void {
-  map = new google.maps.Map(document.getElementById("map") as HTMLElement, {
-    center: new google.maps.LatLng(-19.257753, 146.823688),
-    zoom: 2,
-    mapTypeId: "terrain",
-  });
+  const uluru = { lat: -25.363, lng: 131.044 };
 
-  const kmlLayer = new google.maps.KmlLayer({
-    suppressInfoWindows: true,
-    preserveViewport: false,
-    map,
-    url,
-  });
-  kmlLayer.addListener("click", (event) => {
-    const content = event.featureData.infoWindowHtml;
-    const testimonial = document.getElementById("capture") as HTMLElement;
-    testimonial.innerHTML = content;
+  const map = new google.maps.Map(
+    document.getElementById("map") as HTMLElement,
+    {
+      zoom: 4,
+      center: uluru,
+      zoomControl: false,
+      scaleControl: false,
+      streetViewControl: false,
+      scrollwheel: false,
+    }
+  );
+
+  const marker = new google.maps.Marker({
+    position: uluru,
+    map: map,
   });
 }
 export { initMap };
